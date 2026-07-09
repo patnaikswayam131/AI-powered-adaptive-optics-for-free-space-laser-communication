@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // Interactive Pipeline Diagram
 // Shows the 8-step AO simulation pipeline with animations and physics tooltips
 // Uses KaTeX for LaTeX equation rendering
@@ -50,7 +50,7 @@ const PIPELINE_STEPS = [
     label: 'Slope\nMeasurements',
     shortLabel: 'Slopes',
     icon: '📊',
-    description: 'The slope vector contains 2×n_sub² measurements — x and y gradients for each subaperture. These are the features fed to the ML model. Each independent turbulence realization produces one feature vector.',
+    description: 'The slope vector contains 2×n_sub² measurements - x and y gradients for each subaperture. These are the features fed to the ML model. Each independent turbulence realization produces one feature vector.',
     equation: '\\mathbf{s} = [s_{x_1}, \\ldots, s_{x_n}, s_{y_1}, \\ldots, s_{y_n}]^T',
     eqLabel: 'Feature Vector',
     dimensions: 'Shape: (n_realizations, 2×n_sub²)'
@@ -80,7 +80,7 @@ const PIPELINE_STEPS = [
     label: 'Error Map\n+ RMSE',
     shortLabel: 'Evaluation',
     icon: '📉',
-    description: 'The absolute difference between true and predicted wavefronts gives the error map. RMSE is computed ONLY on held-out test data — never on training samples.',
+    description: 'The absolute difference between true and predicted wavefronts gives the error map. RMSE is computed ONLY on held-out test data - never on training samples.',
     equation: '\\text{RMSE} = \\sqrt{\\frac{1}{n_{\\text{test}}} \\sum_i \\|\\hat{a}_i - a_i\\|^2}',
     eqLabel: 'Test-Set Root Mean Square Error',
     dimensions: 'Metrics: RMSE (rad), R² score, per-mode error'
@@ -89,7 +89,7 @@ const PIPELINE_STEPS = [
 
 
 // ============================================================================
-// PipelineDiagram — renders the interactive step nodes, connectors, and tooltip
+// PipelineDiagram - renders the interactive step nodes, connectors, and tooltip
 // ============================================================================
 
 class PipelineDiagram {
@@ -183,7 +183,7 @@ class PipelineDiagram {
   }
   
   bindEvents() {
-    // Node clicks — toggle tooltip for the clicked step
+    // Node clicks - toggle tooltip for the clicked step
     document.querySelectorAll('.pipeline-node').forEach((node, idx) => {
       node.addEventListener('click', () => {
         if (this.activeTooltip === idx) {
@@ -202,7 +202,7 @@ class PipelineDiagram {
   }
   
   startFlowAnimation() {
-    // Animated flowing dots on connectors — handled via CSS keyframes
+    // Animated flowing dots on connectors - handled via CSS keyframes
     // on .pipeline-connector::after pseudo-elements
   }
 }

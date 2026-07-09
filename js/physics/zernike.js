@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // Zernike Polynomial Module
 // ============================================================================
 // Generates Noll-ordered Zernike basis functions on a circular aperture and
@@ -54,7 +54,7 @@ var ZERNIKE_NM = [
 
 /**
  * Compute n! (factorial).
- * @param {number} n — non-negative integer
+ * @param {number} n - non-negative integer
  * @returns {number}
  */
 function factorial(n) {
@@ -67,9 +67,9 @@ function factorial(n) {
 /**
  * Evaluate the radial polynomial R_n^|m|(ρ).
  *
- * @param {number} n   — radial order
- * @param {number} m   — azimuthal order
- * @param {number} rho — radial coordinate (0 ≤ ρ ≤ 1)
+ * @param {number} n   - radial order
+ * @param {number} m   - azimuthal order
+ * @param {number} rho - radial coordinate (0 ≤ ρ ≤ 1)
  * @returns {number}
  */
 function zernikeRadial(n, m, rho) {
@@ -93,10 +93,10 @@ function zernikeRadial(n, m, rho) {
  * Generate a single Zernike mode Z_n^m on an NxN pixel grid.
  * The mode is normalised to unit RMS over the unit circle.
  *
- * @param {number} N — grid side length
- * @param {number} n — radial order
- * @param {number} m — azimuthal order
- * @returns {number[]} — flat NxN array
+ * @param {number} N - grid side length
+ * @param {number} n - radial order
+ * @param {number} m - azimuthal order
+ * @returns {number[]} - flat NxN array
  */
 function generateZernikeMode(N, n, m) {
   var mode = new Float64Array(N * N);
@@ -154,9 +154,9 @@ var _zernikeBasisModes = 0;
 /**
  * Generate (or retrieve cached) Zernike basis set.
  *
- * @param {number} N        — grid side length
- * @param {number} numModes — number of Noll-ordered modes
- * @returns {Array<number[]>} — array of numModes flat NxN arrays
+ * @param {number} N        - grid side length
+ * @param {number} numModes - number of Noll-ordered modes
+ * @returns {Array<number[]>} - array of numModes flat NxN arrays
  */
 function generateZernikeBasis(N, numModes) {
   if (_zernikeBasisCache &&
@@ -180,10 +180,10 @@ function generateZernikeBasis(N, numModes) {
 /**
  * Project a phase screen onto the Zernike basis via inner product.
  *
- * @param {number[]|Float64Array} phase — flat NxN phase array
- * @param {number} N        — grid side length
- * @param {number} [numModes=15] — number of Zernike modes
- * @returns {number[]} — array of modal coefficients
+ * @param {number[]|Float64Array} phase - flat NxN phase array
+ * @param {number} N        - grid side length
+ * @param {number} [numModes=15] - number of Zernike modes
+ * @returns {number[]} - array of modal coefficients
  */
 function projectOntoZernike(phase, N, numModes) {
   if (!numModes) numModes = 15;
@@ -218,9 +218,9 @@ function projectOntoZernike(phase, N, numModes) {
 /**
  * Reconstruct a phase screen from Zernike coefficients.
  *
- * @param {number[]} coeffs — modal coefficients
- * @param {number} N — grid side length
- * @returns {number[]} — flat NxN phase array
+ * @param {number[]} coeffs - modal coefficients
+ * @param {number} N - grid side length
+ * @returns {number[]} - flat NxN phase array
  */
 function reconstructFromZernike(coeffs, N) {
   var numModes = coeffs.length;

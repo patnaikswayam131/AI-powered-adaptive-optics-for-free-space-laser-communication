@@ -1,4 +1,4 @@
-// Ridge & Linear Regression
+﻿// Ridge & Linear Regression
 // Closed-form solution: β = (X'X + αI)^(-1) X'y
 // Fixes Flaw 6: Implements actual mathematical regression, not a placeholder
 
@@ -28,7 +28,7 @@ function ridgeRegression(X_train, y_train, alpha) {
   try {
     XtXinv = matInvert(XtX);
   } catch (e) {
-    // Matrix singular — auto-increase alpha and retry
+    // Matrix singular - auto-increase alpha and retry
     console.warn(`Matrix singular with α=${alpha}, auto-increasing to α=${alpha + 1.0}`);
     usedAlpha = alpha + 1.0;
     for (let i = 0; i < p; i++) {

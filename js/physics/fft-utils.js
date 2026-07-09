@@ -1,25 +1,25 @@
-// ============================================================================
-// 2D FFT Utilities — wraps the fft.js library (loaded via CDN)
+﻿// ============================================================================
+// 2D FFT Utilities - wraps the fft.js library (loaded via CDN)
 // ============================================================================
 // fft.js provides:
-//   new FFT(size)          — create transformer for given power-of-2 size
-//   .transform(out, inp)   — forward FFT
-//   .inverseTransform(out, inp) — inverse FFT
+//   new FFT(size)          - create transformer for given power-of-2 size
+//   .transform(out, inp)   - forward FFT
+//   .inverseTransform(out, inp) - inverse FFT
 // Input/output format: interleaved Float64Array [re0, im0, re1, im1, ...]
 //
 // This module adds 2D operations on NxN grids:
-//   fft2(realInput, N)          — 2D FFT of real-valued NxN array
-//   fft2Complex(complexInput, N) — 2D FFT of complex-valued NxN array
-//   ifft2(complexInput, N)      — inverse 2D FFT
-//   fftShift(arr, N)            — swap quadrants so DC is centred
+//   fft2(realInput, N)          - 2D FFT of real-valued NxN array
+//   fft2Complex(complexInput, N) - 2D FFT of complex-valued NxN array
+//   ifft2(complexInput, N)      - inverse 2D FFT
+//   fftShift(arr, N)            - swap quadrants so DC is centred
 // ============================================================================
 
 /**
  * 2D Fast Fourier Transform of a real-valued input.
  *
- * @param {number[]|Float64Array} realInput — flat array of N*N real values
- * @param {number} N — grid side length (must be power of 2)
- * @returns {Array<{re:number, im:number}>} — N*N complex values
+ * @param {number[]|Float64Array} realInput - flat array of N*N real values
+ * @param {number} N - grid side length (must be power of 2)
+ * @returns {Array<{re:number, im:number}>} - N*N complex values
  */
 function fft2(realInput, N) {
   var fftObj = new FFT(N);
@@ -71,8 +71,8 @@ function fft2(realInput, N) {
 /**
  * 2D FFT of a complex-valued input.
  *
- * @param {Array<{re:number, im:number}>} complexInput — N*N complex values
- * @param {number} N — grid side length (power of 2)
+ * @param {Array<{re:number, im:number}>} complexInput - N*N complex values
+ * @param {number} N - grid side length (power of 2)
  * @returns {Array<{re:number, im:number}>}
  */
 function fft2Complex(complexInput, N) {
@@ -115,8 +115,8 @@ function fft2Complex(complexInput, N) {
 /**
  * Inverse 2D FFT.
  *
- * @param {Array<{re:number, im:number}>} complexInput — N*N complex values
- * @param {number} N — grid side length (power of 2)
+ * @param {Array<{re:number, im:number}>} complexInput - N*N complex values
+ * @param {number} N - grid side length (power of 2)
  * @returns {Array<{re:number, im:number}>}
  */
 function ifft2(complexInput, N) {
@@ -160,9 +160,9 @@ function ifft2(complexInput, N) {
  * Swap quadrants of an NxN array so DC component is centred.
  * Works on any flat array (real or object) of length N*N.
  *
- * @param {Array} arr — flat NxN array
- * @param {number} N  — grid side length
- * @returns {Array}   — quadrant-swapped copy
+ * @param {Array} arr - flat NxN array
+ * @param {number} N  - grid side length
+ * @returns {Array}   - quadrant-swapped copy
  */
 function fftShift(arr, N) {
   var result = new Array(N * N);

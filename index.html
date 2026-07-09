@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="SHYENA — A physics-accurate simulation of AI-powered adaptive optics for free-space laser communication. Run the corrected ML pipeline in your browser.">
+  <meta name="description" content="SHYENA - A physics-accurate simulation of AI-powered adaptive optics for free-space laser communication. Run the corrected ML pipeline in your browser.">
   <title>SHYENA | AI-Powered Adaptive Optics for Laser Communication</title>
 
   <!-- Fonts -->
@@ -46,7 +46,7 @@
       <h1>When Light Meets Turbulence</h1>
       <p class="hero-description">
         A physics-accurate simulation of AI-powered adaptive optics for free-space 
-        laser communication — with a working, corrected machine learning pipeline 
+        laser communication - with a working, corrected machine learning pipeline 
         you can run right here.
       </p>
       <div class="hero-cta">
@@ -59,7 +59,10 @@
   <!-- ═══════════════════════════ THE PROBLEM ═══════════════════════════ -->
   <section id="problem">
     <div class="container">
-      <div class="section-title"><h2>The Problem</h2></div>
+      <div class="section-title">
+        <span class="eyebrow-mono">ATMOSPHERIC TRANSMISSION</span>
+        <h2>The Problem</h2>
+      </div>
       <p class="section-subtitle">
         Laser communication through Earth's atmosphere faces a fundamental physical challenge: 
         the air itself distorts the beam.
@@ -72,7 +75,7 @@
           <h3>The Atmosphere Distorts Light</h3>
           <p>
             Temperature gradients and wind create random fluctuations in air's refractive index. 
-            A laser beam passing through this medium accumulates random phase errors — the wavefront 
+            A laser beam passing through this medium accumulates random phase errors - the wavefront 
             is warped. This is described by Kolmogorov's turbulence theory, where distortion strength 
             scales with the refractive index structure constant C<sub>n</sub>².
           </p>
@@ -106,7 +109,10 @@
   <!-- ═══════════════════════════ OUR APPROACH ═══════════════════════════ -->
   <section id="approach">
     <div class="container">
-      <div class="section-title"><h2>Our Approach</h2></div>
+      <div class="section-title">
+        <span class="eyebrow-mono">COMPUTATIONAL PIPELINE</span>
+        <h2>Our Approach</h2>
+      </div>
       <p class="section-subtitle">
         An end-to-end pipeline from atmospheric turbulence to wavefront prediction. 
         Click any step to explore the physics.
@@ -119,10 +125,13 @@
   <!-- ═══════════════════════════ LIVE DEMO ═══════════════════════════ -->
   <section id="demo">
     <div class="container">
-      <div class="section-title"><h2>Live Simulation</h2></div>
+      <div class="section-title">
+        <span class="eyebrow-mono">REAL-TIME SIMULATOR</span>
+        <h2>Live Simulation</h2>
+      </div>
       <p class="section-subtitle">
         Every parameter you change here runs real physics-based computation in your browser. 
-        Results are computed fresh each time — nothing is pre-baked.
+        Results are computed fresh each time - nothing is pre-baked.
       </p>
 
       <!-- Parameter Controls -->
@@ -155,7 +164,7 @@
 
           <div style="margin-top: 1.5rem;">
             <label>Ridge Regularization (α)</label>
-            <div class="control-info">L2 penalty strength — prevents overfitting</div>
+            <div class="control-info">L2 penalty strength - prevents overfitting</div>
             <div class="slider-row">
               <input type="range" id="slider-alpha" min="-3" max="2" step="0.1" value="0">
               <span class="slider-value" id="alpha-value">1.000</span>
@@ -202,8 +211,18 @@
         <div class="demo-note" id="demo-timing-note"></div>
       </div>
 
-      <!-- Progress Bar -->
+      <!-- Progress Bar & Live Simulation Preview -->
       <div class="progress-container" id="progress-container">
+        <div class="progress-live-preview" style="display: flex; gap: var(--space-xl); justify-content: center; margin-bottom: var(--space-lg); flex-wrap: wrap;">
+          <div style="text-align: center;">
+            <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--mute); text-transform: uppercase; margin-bottom: var(--space-xs); letter-spacing: 0.8px;">Live Phase Screen</div>
+            <canvas id="live-phase-canvas" width="128" height="128" style="border: 1px solid var(--hairline); background: var(--canvas); border-radius: var(--radius-sm);"></canvas>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--mute); text-transform: uppercase; margin-bottom: var(--space-xs); letter-spacing: 0.8px;">Live SH Sensor Spots</div>
+            <canvas id="live-sh-canvas" width="128" height="128" style="border: 1px solid var(--hairline); background: var(--canvas); border-radius: var(--radius-sm);"></canvas>
+          </div>
+        </div>
         <div class="progress-bar-track">
           <div class="progress-bar-fill" id="progress-bar-fill"></div>
         </div>
@@ -216,22 +235,22 @@
       <!-- Metrics Scorecard -->
       <div class="metrics-scorecard" id="metrics-scorecard">
         <div class="metric-card" id="metric-test-rmse">
-          <div class="metric-card-value" id="val-test-rmse">—</div>
+          <div class="metric-card-value" id="val-test-rmse">-</div>
           <div class="metric-card-label">Wavefront Error (test set)</div>
-          <div class="metric-card-sublabel">Measured on HELD-OUT data — not used in training</div>
+          <div class="metric-card-sublabel">Measured on HELD-OUT data - not used in training</div>
         </div>
         <div class="metric-card" id="metric-r2">
-          <div class="metric-card-value" id="val-r2">—</div>
+          <div class="metric-card-value" id="val-r2">-</div>
           <div class="metric-card-label">R² Score</div>
           <div class="metric-card-sublabel">1.0 = perfect prediction. 0 = predicting the mean.</div>
         </div>
         <div class="metric-card" id="metric-gap">
-          <div class="metric-card-value mono" id="val-gap">—</div>
+          <div class="metric-card-value mono" id="val-gap">-</div>
           <div class="metric-card-label">Generalization Gap</div>
           <div class="metric-card-sublabel">Larger gap = overfitting. Small gap = good generalization.</div>
         </div>
         <div class="metric-card" id="metric-split">
-          <div class="metric-card-value mono" id="val-split">—</div>
+          <div class="metric-card-value mono" id="val-split">-</div>
           <div class="metric-card-label">Independent Realizations</div>
           <div class="metric-card-sublabel">Each realization is a physically independent turbulence scenario</div>
         </div>
@@ -288,8 +307,8 @@
           <div class="result-panel-title">Zernike Mode Coefficients: True vs Predicted</div>
           <div class="result-panel-chart" id="chart-zernike"></div>
           <div class="result-panel-caption" id="caption-zernike">
-            Lower-order modes (tip, tilt, defocus — modes 2, 3, 4) are predicted more accurately. 
-            Higher-order corrections are harder to learn with linear models — a real limitation.
+            Lower-order modes (tip, tilt, defocus - modes 2, 3, 4) are predicted more accurately. 
+            Higher-order corrections are harder to learn with linear models - a real limitation.
           </div>
         </div>
       </div>
@@ -316,7 +335,7 @@
           
           <div class="honesty-item"><span class="cross">✗</span> Linear and Ridge regression are inherently limited to linear mappings. The real wavefront-slope relationship has nonlinear components that require CNNs or deeper models.</div>
           <div class="honesty-item"><span class="cross">✗</span> At 32×32 resolution, only 15 Zernike modes are fitted. A real AO system corrects 50-100+ modes.</div>
-          <div class="honesty-item"><span class="cross">✗</span> No closed-loop correction is demonstrated — this predicts the error but does not show the mirror command that would correct it.</div>
+          <div class="honesty-item"><span class="cross">✗</span> No closed-loop correction is demonstrated - this predicts the error but does not show the mirror command that would correct it.</div>
           <div class="honesty-item"><span class="cross">✗</span> This remains a simulation. Real sensor noise, read noise, and photon statistics are approximated but not fully modeled.</div>
         </div>
       </div>
@@ -326,7 +345,10 @@
   <!-- ═══════════════════════════ RESULTS ═══════════════════════════ -->
   <section id="results">
     <div class="container">
-      <div class="section-title"><h2>Results</h2></div>
+      <div class="section-title">
+        <span class="eyebrow-mono">BENCHMARK FINDINGS</span>
+        <h2>Results</h2>
+      </div>
       <p class="section-subtitle">
         Honest findings from a simulation-based study. We report what the model actually achieves, 
         and where it falls short. All numbers were computed on held-out test data.
@@ -334,7 +356,7 @@
 
       <div class="results-cards">
         <div class="result-summary-card">
-          <h3>Ridge Beats Linear — With a Caveat</h3>
+          <h3>Ridge Beats Linear - With a Caveat</h3>
           <p>
             Ridge Regression (α=10) achieved 12-15% lower test RMSE than Linear Regression 
             across 50-realization experiments. However, the margin shrinks at higher turbulence 
@@ -358,7 +380,7 @@
           <h3>More Data Helps, But Hits a Wall</h3>
           <p>
             Increasing realizations from 10 to 100 reduces test RMSE consistently. 
-            Beyond 100 samples, improvement plateaus — indicating the linear model 
+            Beyond 100 samples, improvement plateaus - indicating the linear model 
             has reached its capacity limit. This motivates future work with 
             convolutional neural networks or physics-informed learning.
           </p>
@@ -376,14 +398,17 @@
   <!-- ═══════════════════════════ TEAM ═══════════════════════════ -->
   <section id="team">
     <div class="container">
-      <div class="section-title"><h2>Team SHYENA</h2></div>
-      <p class="section-subtitle" style="color: var(--gold); font-family: var(--font-mono); letter-spacing: 2px;">
+      <div class="section-title">
+        <span class="eyebrow-mono">PROJECT CONTRIBUTORS</span>
+        <h2>Team SHYENA</h2>
+      </div>
+      <p class="section-subtitle" style="color: var(--accent-sunset-soft); font-family: var(--font-mono); letter-spacing: 2px; text-transform: uppercase;">
         From the Vedas to Velocity
       </p>
 
       <!-- Guide Card -->
       <div class="guide-card">
-        <div class="guide-avatar">RN</div>
+        <img src="assets/ratikanta.png" class="guide-avatar" alt="Dr. Ratikanta Nayak">
         <h3>Dr. Ratikanta Nayak</h3>
         <div class="guide-role">Project Supervisor</div>
         <div class="guide-detail">
@@ -395,7 +420,7 @@
       <!-- Team Grid -->
       <div class="team-grid">
         <div class="team-card">
-          <div class="team-avatar">PS</div>
+          <img src="assets/shreya.png" class="team-avatar" alt="Palantala Shreya">
           <h4>Palantala Shreya</h4>
           <div class="team-roll">202457159</div>
           <div class="team-dept">CSE (Data Science)</div>
@@ -407,13 +432,13 @@
           <div class="team-dept">CST</div>
         </div>
         <div class="team-card">
-          <div class="team-avatar">SS</div>
+          <img src="assets/swayam.png" class="team-avatar" alt="Swayam Satwik Patnaik">
           <h4>Swayam Satwik Patnaik</h4>
           <div class="team-roll">202456168</div>
           <div class="team-dept">CSE (Data Science)</div>
         </div>
         <div class="team-card">
-          <div class="team-avatar">PM</div>
+          <img src="assets/parag.png" class="team-avatar" alt="Parag Mohapatra">
           <h4>Parag Mohapatra</h4>
           <div class="team-roll">202456177</div>
           <div class="team-dept">CSE (Data Science)</div>
@@ -435,13 +460,13 @@
         </div>
 
         <div class="footer-center">
-          B.Tech Project Report — Applied Physics<br>
+          B.Tech Project Report - Applied Physics<br>
           NIST University, Berhampur, Odisha-761008, India<br>
           Under guidance of Dr. Ratikanta Nayak
         </div>
 
         <div class="footer-right">
-          <a href="#" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1.2rem;">
+          <a href="https://github.com/patnaikswayam131/AI-powered-adaptive-optics-for-free-space-laser-communication" target="_blank" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1.2rem;">
             GitHub Repository
           </a>
           <div class="footer-quote">"Built with physics, not fiction."</div>

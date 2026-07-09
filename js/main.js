@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════
 // Main Application Controller
 // Handles navigation, slider controls, simulation execution,
 // scroll animations, and all user interactions
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initHonestyBox();
   initStaticResults();
 
-  console.log('SHYENA — AI-Powered Adaptive Optics initialized.');
+  console.log('SHYENA - AI-Powered Adaptive Optics initialized.');
 });
 
 // ═══════════════════════════════════════════════════════════════

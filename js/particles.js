@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // Turbulent Atmosphere Particle System
 // Simulates atmospheric turbulence for the hero section
 // Particles represent refractive index fluctuations drifting in wind
@@ -27,8 +27,8 @@ class TurbulentParticleSystem {
       laserY: 0.5,  // laser beam at 50% height
       colors: {
         cyan: { r: 0, g: 212, b: 255 },
-        violet: { r: 123, g: 47, b: 255 },
-        orange: { r: 255, g: 107, b: 53 }
+        violet: { r: 124, g: 58, b: 237 },
+        orange: { r: 255, g: 122, b: 23 }
       }
     };
     
@@ -57,7 +57,7 @@ class TurbulentParticleSystem {
   }
   
   createParticle(x, y) {
-    // Particles have a "layer" — determines their turbulence behavior
+    // Particles have a "layer" - determines their turbulence behavior
     const layer = Math.random();
     const posY = y || Math.random() * this.height;
     const isNearLaser = Math.abs(posY / this.height - this.config.laserY) < 0.15;
@@ -142,7 +142,7 @@ class TurbulentParticleSystem {
     ctx.beginPath();
     ctx.moveTo(0, y);
     
-    // Wavy laser beam path — multiple sine frequencies for realistic distortion
+    // Wavy laser beam path - multiple sine frequencies for realistic distortion
     for (let x = 0; x <= this.width; x += 4) {
       const wave = Math.sin(x * 0.01 + this.time * 2) * 3 +
                    Math.sin(x * 0.03 + this.time * 1.5) * 2 +

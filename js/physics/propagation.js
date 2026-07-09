@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // Beam Propagation Module
 // ============================================================================
 // Implements a Gaussian beam profile combined with Fraunhofer (far-field)
@@ -10,7 +10,7 @@
 //   • I       = |E_far|²                      (intensity / PSF)
 //   • Strehl  = max(I_distorted) / max(I_ideal)
 //
-// This directly connects phase aberrations to image quality — intensity is
+// This directly connects phase aberrations to image quality - intensity is
 // NOT generated independently from phase (fixes Flaw 2).
 //
 // Dependencies: fft-utils.js (fft2Complex, fftShift)
@@ -19,9 +19,9 @@
 /**
  * Generate a 2D Gaussian beam amplitude profile.
  *
- * @param {number} N     — grid side length
- * @param {number} [sigma] — beam 1/e² radius in pixels (default 0.3·N)
- * @returns {Float64Array} — flat NxN array of amplitude values
+ * @param {number} N     - grid side length
+ * @param {number} [sigma] - beam 1/e² radius in pixels (default 0.3·N)
+ * @returns {Float64Array} - flat NxN array of amplitude values
  */
 function gaussianBeam(N, sigma) {
   if (!sigma) sigma = 0.3 * N;
@@ -43,12 +43,12 @@ function gaussianBeam(N, sigma) {
  * Compute the far-field intensity (PSF) from a wavefront phase screen using
  * Fraunhofer diffraction.
  *
- * @param {number[]|Float64Array} phase — flat NxN phase array [radians]
- * @param {number} N — grid side length (power of 2)
+ * @param {number[]|Float64Array} phase - flat NxN phase array [radians]
+ * @param {number} N - grid side length (power of 2)
  * @returns {{intensity: number[], strehl: number, peakReduction: number}}
- *   intensity  — normalised NxN PSF (peak = 1)
- *   strehl     — Strehl ratio (0–1)
- *   peakReduction — raw peak ratio (distorted / ideal)
+ *   intensity  - normalised NxN PSF (peak = 1)
+ *   strehl     - Strehl ratio (0–1)
+ *   peakReduction - raw peak ratio (distorted / ideal)
  */
 function forwardModel(phase, N) {
   // 1. Gaussian aperture amplitude

@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════
 // Heatmap Visualization Module
 // Renders phase screens, intensity, and error maps using Plotly.js
 // ═══════════════════════════════════════════════════════════════
@@ -6,16 +6,16 @@
 // Plotly dark theme layout defaults
 const PLOTLY_DARK_LAYOUT = {
   paper_bgcolor: 'rgba(0,0,0,0)',
-  plot_bgcolor: 'rgba(0,0,0,0.3)',
-  font: { family: 'Inter, sans-serif', color: '#94a3b8', size: 11 },
+  plot_bgcolor: 'rgba(10,10,10,0.5)',
+  font: { family: 'Inter, system-ui, sans-serif', color: '#7d8187', size: 11 },
   margin: { l: 40, r: 50, t: 10, b: 30 },
   xaxis: {
-    gridcolor: 'rgba(30,42,58,0.5)',
-    zerolinecolor: 'rgba(30,42,58,0.5)',
+    gridcolor: '#212327',
+    zerolinecolor: '#212327',
   },
   yaxis: {
-    gridcolor: 'rgba(30,42,58,0.5)',
-    zerolinecolor: 'rgba(30,42,58,0.5)',
+    gridcolor: '#212327',
+    zerolinecolor: '#212327',
   }
 };
 
@@ -81,8 +81,8 @@ function renderPhaseScreen(containerId, phase, N, rmsPhase, r0) {
     type: 'heatmap',
     colorscale: COLORSCALE_TWILIGHT,
     colorbar: {
-      title: { text: 'Phase (rad)', font: { size: 11, color: '#94a3b8' } },
-      tickfont: { size: 10, color: '#94a3b8', family: 'JetBrains Mono' },
+      title: { text: 'Phase (rad)', font: { size: 11, color: '#7d8187' } },
+      tickfont: { size: 10, color: '#7d8187', family: 'JetBrains Mono' },
       len: 0.9,
       thickness: 15
     },
@@ -116,8 +116,8 @@ function renderIntensityPattern(containerId, intensity, N, strehl) {
     type: 'heatmap',
     colorscale: COLORSCALE_HOT,
     colorbar: {
-      title: { text: 'Intensity', font: { size: 11, color: '#94a3b8' } },
-      tickfont: { size: 10, color: '#94a3b8', family: 'JetBrains Mono' },
+      title: { text: 'Intensity', font: { size: 11, color: '#7d8187' } },
+      tickfont: { size: 10, color: '#7d8187', family: 'JetBrains Mono' },
       len: 0.9,
       thickness: 15
     },
@@ -135,7 +135,7 @@ function renderIntensityPattern(containerId, intensity, N, strehl) {
   const caption = document.getElementById('caption-intensity');
   if (caption) {
     const reduction = strehl < 0.01 ? '>100' : (1 / strehl).toFixed(1);
-    caption.textContent = `Computed via Fraunhofer diffraction of the distorted wavefront. Peak intensity is reduced by ${reduction}x vs ideal Gaussian. This panel is PHYSICALLY DERIVED from Panel 1 — not a separate random field.`;
+    caption.textContent = `Computed via Fraunhofer diffraction of the distorted wavefront. Peak intensity is reduced by ${reduction}x vs ideal Gaussian. This panel is PHYSICALLY DERIVED from Panel 1 - not a separate random field.`;
   }
 }
 
@@ -154,8 +154,8 @@ function renderWavefrontComparison(trueContainerId, predContainerId, phaseTrue, 
     zmax: vMax,
     showscale: true,
     colorbar: {
-      title: { text: 'Phase (rad)', font: { size: 10, color: '#94a3b8' } },
-      tickfont: { size: 9, color: '#94a3b8', family: 'JetBrains Mono' },
+      title: { text: 'Phase (rad)', font: { size: 10, color: '#7d8187' } },
+      tickfont: { size: 9, color: '#7d8187', family: 'JetBrains Mono' },
       len: 0.9,
       thickness: 12
     }
@@ -175,7 +175,7 @@ function renderWavefrontComparison(trueContainerId, predContainerId, phaseTrue, 
     showscale: false
   }], {
     ...layoutBase,
-    title: { text: 'True Wavefront', font: { size: 12, color: '#e2e8f0' } }
+    title: { text: 'True Wavefront', font: { size: 12, color: '#ffffff' } }
   }, PLOTLY_CONFIG);
 
   // Predicted wavefront
@@ -184,7 +184,7 @@ function renderWavefrontComparison(trueContainerId, predContainerId, phaseTrue, 
     z: arrayTo2D(phasePred, N)
   }], {
     ...layoutBase,
-    title: { text: 'Predicted Wavefront', font: { size: 12, color: '#e2e8f0' } }
+    title: { text: 'Predicted Wavefront', font: { size: 12, color: '#ffffff' } }
   }, PLOTLY_CONFIG);
 }
 
@@ -199,8 +199,8 @@ function renderErrorMap(containerId, errorMap, N) {
     type: 'heatmap',
     colorscale: COLORSCALE_INFERNO,
     colorbar: {
-      title: { text: '|Error| (rad)', font: { size: 11, color: '#94a3b8' } },
-      tickfont: { size: 10, color: '#94a3b8', family: 'JetBrains Mono' },
+      title: { text: '|Error| (rad)', font: { size: 11, color: '#7d8187' } },
+      tickfont: { size: 10, color: '#7d8187', family: 'JetBrains Mono' },
       len: 0.9,
       thickness: 15
     },

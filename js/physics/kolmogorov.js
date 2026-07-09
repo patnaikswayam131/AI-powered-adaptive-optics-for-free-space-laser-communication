@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // Kolmogorov Phase Screen Generator
 // ============================================================================
 // Uses the FFT-based spectral method with a von Kármán power spectral density
@@ -14,7 +14,7 @@
 // ============================================================================
 
 /**
- * Box-Muller transform — generates a standard Gaussian random variate.
+ * Box-Muller transform - generates a standard Gaussian random variate.
  * This is the canonical source used by shack-hartmann.js as well.
  *
  * @returns {number} N(0,1) sample
@@ -29,9 +29,9 @@ function gaussianRandom() {
 /**
  * Generate a Kolmogorov / von Kármán phase screen via spectral method.
  *
- * @param {number} N   — grid side length (power of 2, e.g. 32)
- * @param {number} cn2 — refractive-index structure constant Cn² [m^(-2/3)]
- * @param {number} dx  — grid spacing in metres
+ * @param {number} N   - grid side length (power of 2, e.g. 32)
+ * @param {number} cn2 - refractive-index structure constant Cn² [m^(-2/3)]
+ * @param {number} dx  - grid spacing in metres
  * @returns {{phase: number[], r0: number, rmsPhase: number}}
  */
 function generateKolmogorovPhaseScreen(N, cn2, dx) {
@@ -122,9 +122,9 @@ function generateKolmogorovPhaseScreen(N, cn2, dx) {
  *
  * A Kolmogorov screen should give slope ≈ −11/3 ≈ −3.67.
  *
- * @param {number[]|Float64Array} phase — flat NxN phase array
- * @param {number} N  — grid side length
- * @param {number} dx — grid spacing [m]
+ * @param {number[]|Float64Array} phase - flat NxN phase array
+ * @param {number} N  - grid side length
+ * @param {number} dx - grid spacing [m]
  * @returns {{freqs: number[], psd1d: number[], slope: number, expectedSlope: number}}
  */
 function computeRadialPSD(phase, N, dx) {

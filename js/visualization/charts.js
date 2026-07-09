@@ -35,8 +35,8 @@ function renderPSDChart(containerId, psdData) {
       type: 'scatter',
       mode: 'lines+markers',
       name: 'Simulated PSD',
-      line: { color: '#00d4ff', width: 2 },
-      marker: { size: 4, color: '#00d4ff' }
+      line: { color: '#ff7a17', width: 2 },
+      marker: { size: 4, color: '#ff7a17' }
     },
     {
       x: logF,
@@ -44,7 +44,7 @@ function renderPSDChart(containerId, psdData) {
       type: 'scatter',
       mode: 'lines',
       name: 'Theoretical f⁻¹¹ᐟ³',
-      line: { color: '#ef4444', width: 2, dash: 'dash' }
+      line: { color: '#7c3aed', width: 2, dash: 'dash' }
     }
   ];
 
@@ -52,18 +52,18 @@ function renderPSDChart(containerId, psdData) {
     ...PLOTLY_DARK_LAYOUT,
     xaxis: {
       ...PLOTLY_DARK_LAYOUT.xaxis,
-      title: { text: 'log₁₀(Spatial Frequency)', font: { size: 11, color: '#94a3b8' } },
-      tickfont: { size: 10, color: '#94a3b8', family: 'JetBrains Mono' }
+      title: { text: 'log₁₀(Spatial Frequency)', font: { size: 11, color: '#7d8187' } },
+      tickfont: { size: 10, color: '#7d8187', family: 'JetBrains Mono' }
     },
     yaxis: {
       ...PLOTLY_DARK_LAYOUT.yaxis,
-      title: { text: 'log₁₀(PSD)', font: { size: 11, color: '#94a3b8' } },
-      tickfont: { size: 10, color: '#94a3b8', family: 'JetBrains Mono' }
+      title: { text: 'log₁₀(PSD)', font: { size: 11, color: '#7d8187' } },
+      tickfont: { size: 10, color: '#7d8187', family: 'JetBrains Mono' }
     },
     legend: {
-      font: { color: '#94a3b8', size: 10 },
-      bgcolor: 'rgba(0,0,0,0.3)',
-      bordercolor: 'rgba(30,42,58,0.5)',
+      font: { color: '#7d8187', size: 10 },
+      bgcolor: 'rgba(10,10,10,0.8)',
+      bordercolor: '#212327',
       borderwidth: 1,
       x: 0.02,
       y: 0.98
@@ -104,14 +104,14 @@ function renderZernikeChart(containerId, zernikeTrue, zernikePred) {
       y: zernikeTrue,
       type: 'bar',
       name: 'True',
-      marker: { color: 'rgba(0, 212, 255, 0.8)' }
+      marker: { color: 'rgba(255, 122, 23, 0.85)' }
     },
     {
       x: labels,
       y: zernikePred,
       type: 'bar',
       name: 'Predicted',
-      marker: { color: 'rgba(255, 107, 53, 0.8)' }
+      marker: { color: 'rgba(124, 58, 237, 0.85)' }
     }
   ];
 
@@ -120,19 +120,19 @@ function renderZernikeChart(containerId, zernikeTrue, zernikePred) {
     barmode: 'group',
     xaxis: {
       ...PLOTLY_DARK_LAYOUT.xaxis,
-      title: { text: 'Zernike Mode', font: { size: 11, color: '#94a3b8' } },
-      tickfont: { size: 8, color: '#94a3b8', family: 'JetBrains Mono' },
+      title: { text: 'Zernike Mode', font: { size: 11, color: '#7d8187' } },
+      tickfont: { size: 8, color: '#7d8187', family: 'JetBrains Mono' },
       tickangle: -45
     },
     yaxis: {
       ...PLOTLY_DARK_LAYOUT.yaxis,
-      title: { text: 'Coefficient Value', font: { size: 11, color: '#94a3b8' } },
-      tickfont: { size: 10, color: '#94a3b8', family: 'JetBrains Mono' }
+      title: { text: 'Coefficient Value', font: { size: 11, color: '#7d8187' } },
+      tickfont: { size: 10, color: '#7d8187', family: 'JetBrains Mono' }
     },
     legend: {
-      font: { color: '#94a3b8', size: 10 },
-      bgcolor: 'rgba(0,0,0,0.3)',
-      bordercolor: 'rgba(30,42,58,0.5)',
+      font: { color: '#7d8187', size: 10 },
+      bgcolor: 'rgba(10,10,10,0.8)',
+      bordercolor: '#212327',
       borderwidth: 1,
       orientation: 'h',
       x: 0.3,
@@ -156,8 +156,8 @@ function renderConvergenceChart(containerId, staticData) {
       type: 'scatter',
       mode: 'lines+markers',
       name: 'Linear Regression',
-      line: { color: '#94a3b8', width: 2 },
-      marker: { size: 6, color: '#94a3b8', symbol: 'circle' }
+      line: { color: '#7d8187', width: 2 },
+      marker: { size: 6, color: '#7d8187', symbol: 'circle' }
     },
     {
       x: staticData.realizations,
@@ -165,8 +165,8 @@ function renderConvergenceChart(containerId, staticData) {
       type: 'scatter',
       mode: 'lines+markers',
       name: 'Ridge Regression (α=10)',
-      line: { color: '#00d4ff', width: 2 },
-      marker: { size: 6, color: '#00d4ff', symbol: 'diamond' }
+      line: { color: '#ff7a17', width: 2 },
+      marker: { size: 6, color: '#ff7a17', symbol: 'diamond' }
     }
   ];
 
@@ -175,18 +175,18 @@ function renderConvergenceChart(containerId, staticData) {
     margin: { l: 60, r: 30, t: 20, b: 50 },
     xaxis: {
       ...PLOTLY_DARK_LAYOUT.xaxis,
-      title: { text: 'Number of Realizations', font: { size: 12, color: '#94a3b8' } },
-      tickfont: { size: 11, color: '#94a3b8', family: 'JetBrains Mono' }
+      title: { text: 'Number of Realizations', font: { size: 12, color: '#7d8187' } },
+      tickfont: { size: 11, color: '#7d8187', family: 'JetBrains Mono' }
     },
     yaxis: {
       ...PLOTLY_DARK_LAYOUT.yaxis,
-      title: { text: 'Test RMSE (rad)', font: { size: 12, color: '#94a3b8' } },
-      tickfont: { size: 11, color: '#94a3b8', family: 'JetBrains Mono' }
+      title: { text: 'Test RMSE (rad)', font: { size: 12, color: '#7d8187' } },
+      tickfont: { size: 11, color: '#7d8187', family: 'JetBrains Mono' }
     },
     legend: {
-      font: { color: '#e2e8f0', size: 11 },
-      bgcolor: 'rgba(17,24,39,0.8)',
-      bordercolor: 'rgba(30,42,58,0.5)',
+      font: { color: '#dadbdf', size: 11 },
+      bgcolor: 'rgba(10,10,10,0.85)',
+      bordercolor: '#212327',
       borderwidth: 1,
       x: 0.55,
       y: 0.95

@@ -1,4 +1,4 @@
-// ============================================================================
+﻿// ============================================================================
 // Shack-Hartmann Wavefront Sensor Simulator
 // ============================================================================
 // Models the standard AO wavefront sensor by dividing the pupil into a grid
@@ -20,11 +20,11 @@
 /**
  * Compute Shack-Hartmann slope measurements from a phase screen.
  *
- * @param {number[]|Float64Array} phase — flat NxN phase array [radians]
- * @param {number} N      — grid side length
- * @param {number} nSubap — number of subapertures per side (default 4)
- * @param {number} cn2    — Cn² value, used to scale sensor noise
- * @returns {number[]} — slope vector [sx_1, sx_2, …, sy_1, sy_2, …]
+ * @param {number[]|Float64Array} phase - flat NxN phase array [radians]
+ * @param {number} N      - grid side length
+ * @param {number} nSubap - number of subapertures per side (default 4)
+ * @param {number} cn2    - Cn² value, used to scale sensor noise
+ * @returns {number[]} - slope vector [sx_1, sx_2, …, sy_1, sy_2, …]
  *                        length = 2 · nSubap²
  */
 function computeSHSlopes(phase, N, nSubap, cn2) {
@@ -58,7 +58,7 @@ function computeSHSlopes(phase, N, nSubap, cn2) {
       var meanGradX = count > 0 ? sumGradX / count : 0;
       var meanGradY = count > 0 ? sumGradY / count : 0;
 
-      // Additive sensor noise — photon-noise approximation
+      // Additive sensor noise - photon-noise approximation
       // Noise level scales with √(Cn² / reference_Cn²)
       var noiseLevel = 0.05 * Math.sqrt(cn2 / 1e-13);
       slopesX.push(meanGradX + gaussianRandom() * noiseLevel);

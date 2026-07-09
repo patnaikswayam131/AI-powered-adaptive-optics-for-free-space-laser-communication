@@ -17,10 +17,11 @@ async function generateDataset(numRealizations, cn2, N, nSubap, progressCallback
     X.push(slopes);      // Feature vector: 2*nSubap*nSubap = 32
     y.push(coeffs);      // Target vector: numModes = 15
     
-    // Yield to browser every 10 realizations to keep UI responsive
-    if (r % 10 === 0 && progressCallback) {
-      progressCallback(`Generating realization ${r + 1}/${numRealizations}...`);
-      await new Promise(resolve => setTimeout(resolve, 0));
+    // Yield to browser every realization to animate the live simulation preview
+    if (progressCallback) {
+      progressCallback(`Generating realization ${r + 1}/${numRealizations}...`, r + 1, phase, slopes);
+      // Wait 25ms to let the user see the phase screens and Shack-Hartmann spots wobble
+      await new Promise(resolve => setTimeout(resolve, 25));
     }
   }
   

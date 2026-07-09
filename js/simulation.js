@@ -75,7 +75,13 @@ async function runFullSimulation(params) {
 
     const { X, y } = await generateDataset(
       numRealizations, cn2, gridSize, nSubap,
-      (msg) => updateProgress(msg, 5 + (25 * (parseInt(msg.match(/\d+/)?.[0] || 0) / numRealizations)))
+      (msg, r, phase, slopes) => {
+        const pct = 5 + (25 * (r / numRealizations));
+        updateProgress(msg, pct);
+        if (phase && slopes) {
+          drawLivePreview(phase, slopes, gridSize, nSubap);
+        }
+      }
     );
 
     // ═══ Step 2: Train/Test Split ═══
@@ -188,5 +194,135 @@ async function runFullSimulation(params) {
     hideProgress();
     showSimulationError(`${error.message}. Try increasing the regularization parameter (α) or the number of realizations.`);
     throw error;
+  }
+}
+
+// Color map for phase screen rendering (twilight/sunset gradient)
+function getPhaseColor(val, minVal, maxVal) {
+  const range = maxVal - minVal;
+  const t = range > 1e-5 ? (val - minVal) / range : 0.5;
+  
+  let r, g, b;
+  if (t < 0.3) {
+    const nt = t / 0.3;
+    r = 45 + (36 - 45) * nt;
+    g = 27 + (104 - 27) * nt;
+    b = 105 + (168 - 105) * nt;
+  } else if (t < 0.6) {
+    const nt = (t - 0.3) / 0.3;
+    r = 36 + (26 - 36) * nt;
+    g = 104 + (155 - 104) * nt;
+    b = 168 + (176 - 168) * nt;
+  } else if (t < 0.8) {
+    const nt = (t - 0.6) / 0.2;
+    r = 26 + (212 - 26) * nt;
+    g = 155 + (112 - 155) * nt;
+    b = 176 + (32 - 176) * nt;
+  } else {
+    const nt = (t - 0.8) / 0.2;
+    r = 212 + (232 - 212) * nt;
+    g = 112 + (212 - 112) * nt;
+    b = 32 + (77 - 32) * nt;
+  }
+  return `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
+}
+
+function drawLivePreview(phase, slopes, N, nSubap) {
+  // 1. Draw Phase Screen
+  const canvasPhase = document.getElementById('live-phase-canvas');
+  if (canvasPhase) {
+    const ctx = canvasPhase.getContext('2d');
+    const width = canvasPhase.width;
+    const height = canvasPhase.height;
+    const cellW = width / N;
+    const cellH = height / N;
+    
+    // Find min/max
+    let minVal = phase[0];
+    let maxVal = phase[0];
+    for (let i = 1; i < phase.length; i++) {
+      if (phase[i] < minVal) minVal = phase[i];
+      if (phase[i] > maxVal) maxVal = phase[i];
+    }
+    
+    // Draw cells
+    for (let i = 0; i < N; i++) {
+      for (let j = 0; j < N; j++) {
+        const val = phase[i * N + j];
+        ctx.fillStyle = getPhaseColor(val, minVal, maxVal);
+        ctx.fillRect(j * cellW, i * cellH, cellW + 0.5, cellH + 0.5);
+      }
+    }
+  }
+  
+  // 2. Draw Shack-Hartmann spots
+  const canvasSH = document.getElementById('live-sh-canvas');
+  if (canvasSH) {
+    const ctx = canvasSH.getContext('2d');
+    const width = canvasSH.width;
+    const height = canvasSH.height;
+    ctx.clearRect(0, 0, width, height);
+    
+    // Background grid
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, width, height);
+    
+    const subW = width / nSubap;
+    const subH = height / nSubap;
+    
+    // Scale factor to translate slope to pixel displacement (amplified for visibility)
+    const scale = subW * 4.0; 
+    
+    for (let si = 0; si < nSubap; si++) {
+      for (let sj = 0; sj < nSubap; sj++) {
+        const idx = si * nSubap + sj;
+        const sx = slopes[idx];
+        const sy = slopes[nSubap * nSubap + idx];
+        
+        // Center of subaperture
+        const cx = (sj + 0.5) * subW;
+        const cy = (si + 0.5) * subH;
+        
+        // Draw grid cell border
+        ctx.strokeStyle = '#212327';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(sj * subW, si * subH, subW, subH);
+        
+        // Faint reference crosshair
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+        ctx.beginPath();
+        ctx.moveTo(cx, si * subH);
+        ctx.lineTo(cx, (si + 1) * subH);
+        ctx.moveTo(sj * subW, cy);
+        ctx.lineTo((sj + 1) * subW, cy);
+        ctx.stroke();
+        
+        // Spot position shifted by local slopes
+        const spotX = cx + sx * scale;
+        const spotY = cy + sy * scale;
+        
+        // Clamp inside cell to be clean
+        const padding = 3;
+        const clampedX = Math.max(sj * subW + padding, Math.min((sj + 1) * subW - padding, spotX));
+        const clampedY = Math.max(si * subH + padding, Math.min((si + 1) * subH - padding, spotY));
+        
+        // Draw spot (bright yellow-white circle with soft warm sunset orange glow)
+        const rad = 2.5;
+        const gradient = ctx.createRadialGradient(clampedX, clampedY, 0, clampedX, clampedY, rad * 3.5);
+        gradient.addColorStop(0, '#ffffff');
+        gradient.addColorStop(0.25, '#ffc285'); // warm sunset orange glow
+        gradient.addColorStop(1, 'rgba(255, 122, 23, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(clampedX, clampedY, rad * 3.5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(clampedX, clampedY, rad, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
   }
 }
