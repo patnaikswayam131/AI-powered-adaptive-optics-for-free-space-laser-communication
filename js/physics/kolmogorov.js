@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // Kolmogorov Phase Screen Generator
 // ============================================================================
 // Uses the FFT-based spectral method with a von Kármán power spectral density
@@ -13,16 +13,40 @@
 // Dependencies: fft-utils.js (ifft2, fft2)
 // ============================================================================
 
+// PRNG State for deterministic, reproducible simulation runs
+var _prngState = 314159265;
+var _usePrngSeed = false;
+
+function setSimulationSeed(seed) {
+  if (seed !== null && seed !== undefined && !isNaN(seed)) {
+    _prngState = (seed >>> 0) || 123456789;
+    _usePrngSeed = true;
+  } else {
+    _usePrngSeed = false;
+  }
+}
+
+function uniformRandom() {
+  if (_usePrngSeed) {
+    // Mulberry32 32-bit PRNG
+    var t = _prngState += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+  return Math.random();
+}
+
 /**
  * Box-Muller transform - generates a standard Gaussian random variate.
- * This is the canonical source used by shack-hartmann.js as well.
+ * This is the canonical source used across physics modules.
  *
  * @returns {number} N(0,1) sample
  */
 function gaussianRandom() {
   var u1, u2;
-  do { u1 = Math.random(); } while (u1 === 0);
-  u2 = Math.random();
+  do { u1 = uniformRandom(); } while (u1 === 0);
+  u2 = uniformRandom();
   return Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
 }
 
@@ -32,18 +56,27 @@ function gaussianRandom() {
  * @param {number} N   - grid side length (power of 2, e.g. 32)
  * @param {number} cn2 - refractive-index structure constant Cn² [m^(-2/3)]
  * @param {number} dx  - grid spacing in metres
+ * @param {number} [L] - propagation path in metres (default 1000m)
  * @returns {{phase: number[], r0: number, rmsPhase: number}}
  */
-function generateKolmogorovPhaseScreen(N, cn2, dx) {
+function generateKolmogorovPhaseScreen(N, cn2, dx, L) {
+  if (!L || isNaN(L)) L = 1000;
   // --- Physical constants & derived parameters ---
   var wavelength = 1.5e-6;                              // 1.5 µm (near-IR)
   var k = 2 * Math.PI / wavelength;                     // optical wavenumber
-  var L = 1000;                                         // propagation path [m]
   var r0 = Math.pow(0.423 * k * k * cn2 * L, -3.0 / 5.0); // Fried parameter
 
   // von Kármán outer scale
   var L0 = 25.0;       // outer scale [m]
   var f0 = 1.0 / L0;   // outer scale spatial frequency [1/m]
+
+  // Physical telescope aperture: calibrated to D = 0.15 m (15 cm) receiver pupil
+  var D = 0.15;
+  if (dx && dx < 0.1) {
+    D = N * dx;
+  } else {
+    dx = D / N;
+  }
 
   // Frequency-domain grid spacing
   var df = 1.0 / (N * dx);
@@ -85,9 +118,8 @@ function generateKolmogorovPhaseScreen(N, cn2, dx) {
   }
 
   // --- Normalise to physical RMS ---
-  // Target: σ_φ ∝ (D/r₀)^(5/6)
-  var D = N * dx;                                     // aperture diameter [m]
-  var targetRms = 1.0 * Math.pow(D / r0, 5.0 / 6.0);
+  // Target: σ_φ = 1.015 · (D/r₀)^(5/6) (Kolmogorov variance over circular pupil, Noll 1976)
+  var targetRms = 1.015 * Math.pow(D / r0, 5.0 / 6.0);
 
   // Remove piston (mean) and compute current RMS
   var mean = 0;

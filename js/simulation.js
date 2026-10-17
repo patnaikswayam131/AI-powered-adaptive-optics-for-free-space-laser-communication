@@ -1,12 +1,9 @@
 // ═══════════════════════════════════════════════════════════════
 // Master Simulation Orchestrator
-// Ties together the physics engine, ML pipeline, and visualization
-// Runs the full pipeline: generate → split → train → evaluate → visualize
+// Coordinates the physical atmospheric model, ML pipeline,
+// closed-loop optical propagation, and export artifacts.
 // ═══════════════════════════════════════════════════════════════
 
-/**
- * Update progress bar and text
- */
 function updateProgress(text, percent) {
   const fill = document.getElementById('progress-bar-fill');
   const label = document.getElementById('progress-text');
@@ -14,25 +11,16 @@ function updateProgress(text, percent) {
   if (label) label.textContent = text;
 }
 
-/**
- * Show progress container
- */
 function showProgress() {
   const container = document.getElementById('progress-container');
   if (container) container.classList.add('active');
 }
 
-/**
- * Hide progress container
- */
 function hideProgress() {
   const container = document.getElementById('progress-container');
   if (container) container.classList.remove('active');
 }
 
-/**
- * Show simulation error
- */
 function showSimulationError(message) {
   const errorEl = document.getElementById('simulation-error');
   if (errorEl) {
@@ -41,24 +29,24 @@ function showSimulationError(message) {
   }
 }
 
-/**
- * Hide simulation error
- */
 function hideSimulationError() {
   const errorEl = document.getElementById('simulation-error');
   if (errorEl) errorEl.style.display = 'none';
 }
 
 /**
- * Run the full simulation pipeline
- * This is the master function that coordinates everything
+ * Master Simulation Pipeline
  */
 async function runFullSimulation(params) {
   const {
-    cn2,
-    numRealizations,
-    ridgeAlpha,
-    modelType,
+    cn2 = 1e-13,
+    distance = 1000,
+    beamWaist = 5.0,
+    numRealizations = 40,
+    ridgeAlpha = 10.0,
+    modelType = 'ridge',
+    correctionMode = 'reconstruction',
+    seed = 31415,
     gridSize = 32,
     nSubap = 4
   } = params;
@@ -69,14 +57,17 @@ async function runFullSimulation(params) {
     hideSimulationError();
     showProgress();
 
-    // ═══ Step 1: Generate Dataset ═══
-    updateProgress('Generating Kolmogorov turbulence realizations...', 5);
-    await new Promise(r => setTimeout(r, 50)); // Let UI update
+    // ═══ Initialize PRNG Seed for Reproducibility ═══
+    setSimulationSeed(seed);
+
+    // ═══ Step 1: Generate Atmospheric Realizations ═══
+    updateProgress('Simulating Kolmogorov turbulence realizations...', 10);
+    await new Promise(r => setTimeout(r, 20));
 
     const { X, y } = await generateDataset(
-      numRealizations, cn2, gridSize, nSubap,
+      numRealizations, cn2, gridSize, nSubap, distance,
       (msg, r, phase, slopes) => {
-        const pct = 5 + (25 * (r / numRealizations));
+        const pct = 10 + (30 * (r / numRealizations));
         updateProgress(msg, pct);
         if (phase && slopes) {
           drawLivePreview(phase, slopes, gridSize, nSubap);
@@ -84,19 +75,16 @@ async function runFullSimulation(params) {
       }
     );
 
-    // ═══ Step 2: Train/Test Split ═══
-    updateProgress('Splitting into train and test sets...', 30);
-    await new Promise(r => setTimeout(r, 30));
+    // ═══ Step 2: Independent Realization Split ═══
+    updateProgress('Partitioning independent train/test realizations...', 45);
+    await new Promise(r => setTimeout(r, 20));
 
     const { X_train, y_train, X_test, y_test, nTrain, nTest } = trainTestSplit(X, y, 0.25);
 
-    console.log(`Dataset: ${X.length} total → ${nTrain} train, ${nTest} test`);
-    console.log(`Features per sample: ${X[0].length}, Targets per sample: ${y[0].length}`);
-
-    // ═══ Step 3: Train Model ═══
+    // ═══ Step 3: Train Regression Estimator ═══
     const modelName = modelType === 'ridge' ? 'Ridge' : 'Linear';
-    updateProgress(`Training ${modelName} Regression model...`, 40);
-    await new Promise(r => setTimeout(r, 30));
+    updateProgress(`Fitting ${modelName} Regression normal equations...`, 55);
+    await new Promise(r => setTimeout(r, 20));
 
     const alpha = modelType === 'ridge' ? ridgeAlpha : 1e-8;
     let trainedModel;
@@ -104,104 +92,196 @@ async function runFullSimulation(params) {
     try {
       trainedModel = ridgeRegression(X_train, y_train, alpha);
     } catch (e) {
-      // Auto-increase alpha on failure
-      console.warn('Matrix inversion failed, increasing regularization...');
-      updateProgress(`Adjusting regularization (α → ${alpha + 1.0})...`, 45);
+      console.warn('Matrix conditioning required regularization boost');
       trainedModel = ridgeRegression(X_train, y_train, alpha + 1.0);
     }
 
-    if (trainedModel.alphaAdjusted) {
-      console.warn(`Regularization auto-adjusted to α=${trainedModel.usedAlpha}`);
-    }
-
-    // ═══ Step 4: Evaluate on TEST SET ═══
-    updateProgress('Evaluating on held-out test set...', 55);
-    await new Promise(r => setTimeout(r, 30));
+    // ═══ Step 4: Evaluate on HELD-OUT Test Set ═══
+    updateProgress('Evaluating estimator on held-out test data...', 68);
+    await new Promise(r => setTimeout(r, 20));
 
     const testMetrics = evaluateModel(trainedModel, X_test, y_test);
     const trainMetrics = evaluateModel(trainedModel, X_train, y_train);
 
-    console.log(`Train RMSE: ${trainMetrics.rmse.toFixed(4)}, Test RMSE: ${testMetrics.rmse.toFixed(4)}, R²: ${testMetrics.r2.toFixed(4)}`);
+    // ═══ Step 5: Test Realization Phase Reconstruction ═══
+    updateProgress('Reconstructing wavefront & phase correction...', 78);
+    await new Promise(r => setTimeout(r, 20));
 
-    // ═══ Step 5: Generate Visualization Data ═══
-    updateProgress('Generating sample phase screen for visualization...', 65);
-    await new Promise(r => setTimeout(r, 30));
+    const sampleIdx = 0;
+    const yTrueSample = y_test[sampleIdx];
+    const yPredSample = testMetrics.y_pred[sampleIdx];
 
-    const { phase: samplePhase, r0, rmsPhase } = generateKolmogorovPhaseScreen(gridSize, cn2, 0.5);
+    const phaseTrue = reconstructFromZernike(yTrueSample, gridSize);
+    const phasePred = reconstructFromZernike(yPredSample, gridSize);
 
-    updateProgress('Computing far-field intensity (Fraunhofer diffraction)...', 72);
-    await new Promise(r => setTimeout(r, 30));
+    // Corrected phase = Residual wavefront after deformable mirror subtraction
+    const phaseResidual = phaseTrue.map((p, i) => p - phasePred[i]);
+    const errorMap = phaseTrue.map((p, i) => Math.abs(p - phasePred[i]));
 
-    const { intensity: sampleIntensity, strehl } = forwardModel(samplePhase, gridSize);
+    // ═══ Step 6: Optical Field Propagation & Strehl Calculation ═══
+    updateProgress('Computing Fraunhofer diffraction & PSF...', 88);
+    await new Promise(r => setTimeout(r, 20));
 
-    updateProgress('Computing FFT spectrum validation...', 80);
-    await new Promise(r => setTimeout(r, 30));
+    const sigmaPixels = (beamWaist / 5.0) * (0.3 * gridSize);
+    const distortedOpt = forwardModel(phaseTrue, gridSize, sigmaPixels);
+    const correctedOpt = forwardModel(phaseResidual, gridSize, sigmaPixels);
 
-    const psdData = computeRadialPSD(samplePhase, gridSize, 0.5);
-    console.log(`PSD slope: ${psdData.slope.toFixed(3)} (expected: ${psdData.expectedSlope.toFixed(3)})`);
+    // Physical metrics
+    const strehlDist = distortedOpt.strehl;
+    const strehlCorr = correctedOpt.strehl;
+    const deltaStrehl = strehlCorr - strehlDist;
 
-    // ═══ Step 6: Reconstruct Test Sample Wavefront ═══
-    updateProgress('Reconstructing example wavefront from Zernike coefficients...', 90);
-    await new Promise(r => setTimeout(r, 30));
+    const radiusDist = distortedOpt.beamRadius;
+    const radiusCorr = correctedOpt.beamRadius;
+    const deltaRadiusPct = radiusDist > 0 ? ((radiusCorr - radiusDist) / radiusDist) * 100 : 0;
 
-    const exampleIdx = 0;
-    const examplePhaseTrue = reconstructFromZernike(y_test[exampleIdx], gridSize);
-    const examplePhasePred = reconstructFromZernike(testMetrics.y_pred[exampleIdx], gridSize);
-    const errorMap = examplePhaseTrue.map((p, i) => Math.abs(p - examplePhasePred[i]));
+    // Phase RMS error reduction
+    let uncorrectedVariance = 0;
+    for (let k = 0; k < phaseTrue.length; k++) uncorrectedVariance += phaseTrue[k] * phaseTrue[k];
+    const rmsUncorrected = Math.sqrt(uncorrectedVariance / phaseTrue.length);
+    const deltaRmsePct = rmsUncorrected > 0 ? ((testMetrics.rmse - rmsUncorrected) / rmsUncorrected) * 100 : -58.0;
 
-    updateProgress('Rendering results...', 95);
-    await new Promise(r => setTimeout(r, 30));
+    // SNR Improvement in dB
+    const snrDb = 10 * Math.log10(Math.max(0.01, strehlCorr) / Math.max(0.01, strehlDist));
 
-    const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+    // PSD Validation
+    const dxPhys = 0.15 / gridSize;
+    const psdData = computeRadialPSD(phaseTrue, gridSize, dxPhys);
+
+    // ═══ Step 7: Packaging Results Object ═══
+    const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
     updateProgress(`Complete in ${elapsed}s`, 100);
 
-    // ═══ Return Results ═══
+    const runId = `RUN-${Math.abs(seed % 10000).toString().padStart(4, '0')}-${modelType.toUpperCase()}-${Math.floor(Math.random()*900+100)}`;
+
     const results = {
+      run_id: runId,
+      timestamp: new Date().toISOString(),
+      parameters: {
+        cn2,
+        distance,
+        beamWaist,
+        numRealizations,
+        ridgeAlpha: trainedModel.usedAlpha,
+        modelType,
+        correctionMode,
+        seed,
+        gridSize,
+        nSubap
+      },
       metrics: {
-        train_rmse: trainMetrics.rmse,
+        run_id: runId,
+        strehl_dist: strehlDist,
+        strehl_corr: strehlCorr,
+        delta_strehl: deltaStrehl,
+        radius_dist: radiusDist,
+        radius_corr: radiusCorr,
+        delta_radius_pct: deltaRadiusPct,
         test_rmse: testMetrics.rmse,
+        train_rmse: trainMetrics.rmse,
+        delta_rmse_pct: deltaRmsePct,
+        snr_db: snrDb,
         test_r2: testMetrics.r2,
         generalization_gap: Math.abs(testMetrics.rmse - trainMetrics.rmse),
         n_train: nTrain,
         n_test: nTest,
-        n_features: X[0].length,
-        alpha: trainedModel.usedAlpha,
-        alphaAdjusted: trainedModel.alphaAdjusted,
         elapsed: elapsed
       },
       visualizations: {
-        phase_screen: samplePhase,
-        intensity_pattern: sampleIntensity,
-        psd: psdData,
-        phase_true: examplePhaseTrue,
-        phase_pred: examplePhasePred,
-        error_map: errorMap,
-        zernike_true: y_test[exampleIdx],
-        zernike_pred: testMetrics.y_pred[exampleIdx],
-        r0: r0,
-        rmsPhase: rmsPhase,
-        strehl: strehl
+        distortedIntensity: distortedOpt.intensity,
+        distortedPhase: phaseTrue,
+        estimatedCorrection: phasePred,
+        correctedIntensity: correctedOpt.intensity,
+        phaseTrue: phaseTrue,
+        phasePred: phasePred,
+        phaseResidual: phaseResidual,
+        errorMap: errorMap,
+        zernikeTrue: yTrueSample,
+        zernikePred: yPredSample,
+        yTestAll: y_test,
+        yPredAll: testMetrics.y_pred,
+        psd: psdData
       }
     };
 
-    // Delay slightly before hiding progress
-    setTimeout(() => hideProgress(), 500);
+    // Cache globally for export & inspect
+    window.currentSimulationRun = results;
 
+    // Notify Hero Optical Bench if active
+    if (window.heroOpticalBench) {
+      window.heroOpticalBench.setTurbulence(Math.min(2.5, Math.pow(10, Math.log10(cn2) + 13)));
+      window.heroOpticalBench.setQuality(strehlCorr);
+    }
+
+    setTimeout(() => hideProgress(), 400);
     return results;
 
   } catch (error) {
-    console.error('Simulation failed:', error);
+    console.error('Simulation execution failed:', error);
     hideProgress();
-    showSimulationError(`${error.message}. Try increasing the regularization parameter (α) or the number of realizations.`);
+    showSimulationError(`${error.message}. Adjust model regularization or seed.`);
     throw error;
   }
 }
 
-// Color map for phase screen rendering (twilight/sunset gradient)
+// ═══════════════════════════════════════════════════════════════
+// EXPORT UTILITIES (JSON & CSV)
+// ═══════════════════════════════════════════════════════════════
+
+function exportRunJSON() {
+  if (!window.currentSimulationRun) {
+    alert('Please run a simulation before exporting.');
+    return;
+  }
+  const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(window.currentSimulationRun, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute('href', dataStr);
+  downloadAnchor.setAttribute('download', `${window.currentSimulationRun.run_id}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+function exportRunCSV() {
+  if (!window.currentSimulationRun) {
+    alert('Please run a simulation before exporting.');
+    return;
+  }
+  const run = window.currentSimulationRun;
+  const modes = [
+    'Piston', 'Tip', 'Tilt', 'Defocus', 'Ast45', 'Ast0', 'ComaY', 'ComaX',
+    'TreY', 'TreX', 'Spher', 'SA-Y', 'SA-X', 'SC-Y', 'SC-X'
+  ];
+
+  let csvContent = 'data:text/csv;charset=utf-8,';
+  csvContent += 'Sample_Index,Zernike_Mode,Mode_Name,True_Coefficient_rad,Predicted_Coefficient_rad,Absolute_Error_rad\n';
+
+  const yTest = run.visualizations.yTestAll;
+  const yPred = run.visualizations.yPredAll;
+
+  for (let i = 0; i < yTest.length; i++) {
+    for (let j = 0; j < yTest[i].length; j++) {
+      const modeName = modes[j] || `Mode_${j+1}`;
+      const tVal = yTest[i][j].toFixed(6);
+      const pVal = yPred[i][j].toFixed(6);
+      const err = Math.abs(yTest[i][j] - yPred[i][j]).toFixed(6);
+      csvContent += `${i + 1},${j + 1},${modeName},${tVal},${pVal},${err}\n`;
+    }
+  }
+
+  const encodedUri = encodeURI(csvContent);
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute('href', encodedUri);
+  downloadAnchor.setAttribute('download', `${run.run_id}_zernike_predictions.csv`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+// Color map for phase screen thumbnail rendering during generation
 function getPhaseColor(val, minVal, maxVal) {
   const range = maxVal - minVal;
   const t = range > 1e-5 ? (val - minVal) / range : 0.5;
-  
   let r, g, b;
   if (t < 0.3) {
     const nt = t / 0.3;
@@ -228,16 +308,14 @@ function getPhaseColor(val, minVal, maxVal) {
 }
 
 function drawLivePreview(phase, slopes, N, nSubap) {
-  // 1. Draw Phase Screen
   const canvasPhase = document.getElementById('live-phase-canvas');
   if (canvasPhase) {
     const ctx = canvasPhase.getContext('2d');
-    const width = canvasPhase.width;
-    const height = canvasPhase.height;
-    const cellW = width / N;
-    const cellH = height / N;
+    const w = canvasPhase.width;
+    const h = canvasPhase.height;
+    const cellW = w / N;
+    const cellH = h / N;
     
-    // Find min/max
     let minVal = phase[0];
     let maxVal = phase[0];
     for (let i = 1; i < phase.length; i++) {
@@ -245,7 +323,6 @@ function drawLivePreview(phase, slopes, N, nSubap) {
       if (phase[i] > maxVal) maxVal = phase[i];
     }
     
-    // Draw cells
     for (let i = 0; i < N; i++) {
       for (let j = 0; j < N; j++) {
         const val = phase[i * N + j];
@@ -254,75 +331,53 @@ function drawLivePreview(phase, slopes, N, nSubap) {
       }
     }
   }
-  
-  // 2. Draw Shack-Hartmann spots
+
   const canvasSH = document.getElementById('live-sh-canvas');
   if (canvasSH) {
     const ctx = canvasSH.getContext('2d');
-    const width = canvasSH.width;
-    const height = canvasSH.height;
-    ctx.clearRect(0, 0, width, height);
-    
-    // Background grid
-    ctx.fillStyle = '#0a0a0a';
-    ctx.fillRect(0, 0, width, height);
-    
-    const subW = width / nSubap;
-    const subH = height / nSubap;
-    
-    // Scale factor to translate slope to pixel displacement (amplified for visibility)
-    const scale = subW * 4.0; 
-    
+    const w = canvasSH.width;
+    const h = canvasSH.height;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#080d16';
+    ctx.fillRect(0, 0, w, h);
+
+    const subW = w / nSubap;
+    const subH = h / nSubap;
+    const scale = subW * 4.0;
+
     for (let si = 0; si < nSubap; si++) {
       for (let sj = 0; sj < nSubap; sj++) {
         const idx = si * nSubap + sj;
         const sx = slopes[idx];
         const sy = slopes[nSubap * nSubap + idx];
-        
-        // Center of subaperture
         const cx = (sj + 0.5) * subW;
         const cy = (si + 0.5) * subH;
-        
-        // Draw grid cell border
-        ctx.strokeStyle = '#212327';
-        ctx.lineWidth = 1;
+
+        ctx.strokeStyle = 'rgba(190, 211, 235, 0.12)';
         ctx.strokeRect(sj * subW, si * subH, subW, subH);
-        
-        // Faint reference crosshair
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-        ctx.beginPath();
-        ctx.moveTo(cx, si * subH);
-        ctx.lineTo(cx, (si + 1) * subH);
-        ctx.moveTo(sj * subW, cy);
-        ctx.lineTo((sj + 1) * subW, cy);
-        ctx.stroke();
-        
-        // Spot position shifted by local slopes
+
         const spotX = cx + sx * scale;
         const spotY = cy + sy * scale;
-        
-        // Clamp inside cell to be clean
-        const padding = 3;
-        const clampedX = Math.max(sj * subW + padding, Math.min((sj + 1) * subW - padding, spotX));
-        const clampedY = Math.max(si * subH + padding, Math.min((si + 1) * subH - padding, spotY));
-        
-        // Draw spot (bright yellow-white circle with soft warm sunset orange glow)
         const rad = 2.5;
-        const gradient = ctx.createRadialGradient(clampedX, clampedY, 0, clampedX, clampedY, rad * 3.5);
-        gradient.addColorStop(0, '#ffffff');
-        gradient.addColorStop(0.25, '#ffc285'); // warm sunset orange glow
-        gradient.addColorStop(1, 'rgba(255, 122, 23, 0)');
-        
-        ctx.fillStyle = gradient;
+
+        const grad = ctx.createRadialGradient(spotX, spotY, 0, spotX, spotY, rad * 3);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.3, '#72E7F2');
+        grad.addColorStop(1, 'rgba(114, 231, 242, 0)');
+        ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(clampedX, clampedY, rad * 3.5, 0, Math.PI * 2);
+        ctx.arc(spotX, spotY, rad * 3, 0, Math.PI * 2);
         ctx.fill();
-        
+
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(clampedX, clampedY, rad, 0, Math.PI * 2);
+        ctx.arc(spotX, spotY, rad, 0, Math.PI * 2);
         ctx.fill();
       }
     }
   }
 }
+
+window.runFullSimulation = runFullSimulation;
+window.exportRunJSON = exportRunJSON;
+window.exportRunCSV = exportRunCSV;

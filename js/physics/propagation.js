@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // Beam Propagation Module
 // ============================================================================
 // Implements a Gaussian beam profile combined with Fraunhofer (far-field)
@@ -45,14 +45,16 @@ function gaussianBeam(N, sigma) {
  *
  * @param {number[]|Float64Array} phase - flat NxN phase array [radians]
  * @param {number} N - grid side length (power of 2)
- * @returns {{intensity: number[], strehl: number, peakReduction: number}}
- *   intensity  - normalised NxN PSF (peak = 1)
- *   strehl     - Strehl ratio (0–1)
+ * @param {number} [sigma] - beam radius in pixels
+ * @returns {{intensity: number[], strehl: number, peakReduction: number, beamRadius: number}}
+ *   intensity   - normalised NxN PSF (peak = 1)
+ *   strehl      - Strehl ratio (0–1)
  *   peakReduction - raw peak ratio (distorted / ideal)
+ *   beamRadius  - intensity-weighted second moment spot radius in pixels
  */
-function forwardModel(phase, N) {
+function forwardModel(phase, N, sigma) {
   // 1. Gaussian aperture amplitude
-  var amplitude = gaussianBeam(N);
+  var amplitude = gaussianBeam(N, sigma);
 
   // 2. Complex pupil field: E = A · exp(iφ)
   var complexField = new Array(N * N);
@@ -106,11 +108,40 @@ function forwardModel(phase, N) {
   }
 
   // 8. Strehl = peak(distorted) / peak(ideal)
-  var strehl = maxIdeal > 0 ? maxI / maxIdeal : 1;
+  var strehl = maxIdeal > 0 ? Math.min(1.0, maxI / maxIdeal) : 1;
+
+  // 9. Compute beam radius (second moment)
+  var beamRadius = computeBeamRadius(normalized, N);
 
   return {
     intensity: normalized,
     strehl: strehl,
-    peakReduction: maxIdeal > 0 ? maxI / maxIdeal : 1
+    peakReduction: maxIdeal > 0 ? maxI / maxIdeal : 1,
+    beamRadius: beamRadius
   };
+}
+
+/**
+ * Compute the intensity-weighted second moment spot radius in pixels.
+ *
+ * @param {number[]} intensity - flat NxN normalized intensity array
+ * @param {number} N - grid size
+ * @returns {number} RMS radius in pixels
+ */
+function computeBeamRadius(intensity, N) {
+  var cx = N / 2;
+  var cy = N / 2;
+  var sumI = 0;
+  var sumR2I = 0;
+  for (var i = 0; i < N; i++) {
+    for (var j = 0; j < N; j++) {
+      var val = intensity[i * N + j];
+      if (val > 0.01) { // threshold noise floor
+        var r2 = (i - cy) * (i - cy) + (j - cx) * (j - cx);
+        sumI += val;
+        sumR2I += r2 * val;
+      }
+    }
+  }
+  return sumI > 1e-12 ? Math.sqrt(sumR2I / sumI) : 0;
 }

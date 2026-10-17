@@ -1,513 +1,779 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="SHYENA - A physics-accurate simulation of AI-powered adaptive optics for free-space laser communication. Run the corrected ML pipeline in your browser.">
+  <meta name="description" content="SHYENA — AI-Powered Adaptive Optics for Laser Communication in Turbulent Air. Research showcase and reproducible physics-accurate numerical simulation.">
   <title>SHYENA | AI-Powered Adaptive Optics for Laser Communication</title>
 
-  <!-- Fonts -->
+  <!-- Google Fonts: Inter (UI), Newsreader (Serif), IBM Plex Mono (Data) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <!-- KaTeX CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 
-  <!-- App CSS -->
-  <link rel="stylesheet" href="css/styles.css">
+  <!-- Core Stylesheet with Cache Busting -->
+  <link rel="stylesheet" href="css/styles.css?v=20261018_v9">
 </head>
 <body>
-  <!-- ═══════════════════════════ NAVIGATION ═══════════════════════════ -->
+  <!-- Ambient Optical Dust Particle Backdrop -->
+  <canvas id="ambient-particles-canvas"></canvas>
+
+  <!-- ═══════════════════════════ 1. NAVIGATION ═══════════════════════════ -->
   <nav class="nav" id="main-nav">
     <div class="nav-inner">
-      <a href="#hero" class="nav-logo">
-        <img src="assets/logo.png" alt="SHYENA Logo">
-        <span class="nav-logo-text">SHYENA</span>
+      <a href="#hero" class="nav-brand">
+        <img src="assets/logo.png" alt="SHYENA Falcon Crest" class="nav-logo-img">
+        <div class="nav-brand-text">
+          <span class="nav-brand-title">SHYENA</span>
+          <span class="nav-brand-subtitle">From the Vedas to Velocity</span>
+        </div>
       </a>
+
       <ul class="nav-links" id="nav-links">
-        <li><a href="#problem">The Problem</a></li>
-        <li><a href="#approach">Our Approach</a></li>
-        <li><a href="#demo">Live Demo</a></li>
+        <li><a href="#hero" class="active">Overview</a></li>
+        <li><a href="#demo">Live Lab</a></li>
+        <li><a href="#methods">Methods</a></li>
         <li><a href="#results">Results</a></li>
         <li><a href="#team">Team</a></li>
       </ul>
-      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
-        <span></span><span></span><span></span>
-      </button>
+
+      <div class="nav-actions">
+        <button class="btn btn-primary btn-pill" id="nav-btn-run" style="font-size: 0.82rem; padding: 7px 18px;">
+          Run Simulation
+        </button>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
     </div>
   </nav>
 
-  <!-- ═══════════════════════════ HERO ═══════════════════════════ -->
-  <section class="hero" id="hero">
-    <canvas id="particle-canvas" class="hero-canvas"></canvas>
-    <div class="hero-content">
-      <img src="assets/logo.png" alt="SHYENA" class="hero-logo">
-      <div class="hero-tagline">From the Vedas to Velocity</div>
-      <h1>When Light Meets Turbulence</h1>
-      <p class="hero-description">
-        A physics-accurate simulation of AI-powered adaptive optics for free-space 
-        laser communication - with a working, corrected machine learning pipeline 
-        you can run right here.
-      </p>
-      <div class="hero-cta">
-        <a href="#demo" class="btn btn-primary">⚡ Run the Demo</a>
-        <a href="#problem" class="btn btn-secondary">📖 Read the Science</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════ THE PROBLEM ═══════════════════════════ -->
-  <section id="problem">
-    <div class="container">
-      <div class="section-title">
-        <span class="eyebrow-mono">ATMOSPHERIC TRANSMISSION</span>
-        <h2>The Problem</h2>
-      </div>
-      <p class="section-subtitle">
-        Laser communication through Earth's atmosphere faces a fundamental physical challenge: 
-        the air itself distorts the beam.
-      </p>
-
-      <div class="science-cards">
-        <!-- Card 1: Atmospheric Turbulence -->
-        <div class="science-card" id="card-turbulence">
-          <div class="science-card-icon">🌀</div>
-          <h3>The Atmosphere Distorts Light</h3>
-          <p>
-            Temperature gradients and wind create random fluctuations in air's refractive index. 
-            A laser beam passing through this medium accumulates random phase errors - the wavefront 
-            is warped. This is described by Kolmogorov's turbulence theory, where distortion strength 
-            scales with the refractive index structure constant C<sub>n</sub>².
+  <main class="container">
+    <!-- ═══════════════════════════ 2. HERO SECTION ═══════════════════════════ -->
+    <section class="hero" id="hero">
+      <div class="hero-grid">
+        <!-- Left: Editorial Typography & Actions -->
+        <div class="hero-content">
+          <div class="hero-eyebrow">
+            <span class="hero-eyebrow-dot"></span>
+            <span>Applied Optics Laboratory · NIST University</span>
+          </div>
+          <h1 class="hero-title">
+            Correct the wave.<br>
+            <span>Preserve the signal.</span>
+          </h1>
+          <p class="hero-subtitle">
+            Explore AI-assisted wavefront correction under simulated atmospheric turbulence. Trace closed-loop beam propagation across the optical bench and inspect live numerical recovery.
           </p>
+          <div class="hero-ctas">
+            <a href="#demo" class="btn btn-primary btn-pill" id="hero-btn-demo">
+              Explore Live Simulation
+            </a>
+            <a href="#results" class="btn btn-secondary btn-pill">
+              View Results
+            </a>
+          </div>
         </div>
 
-        <!-- Card 2: Wavefront Distortion -->
-        <div class="science-card" id="card-distortion">
-          <div class="science-card-icon">〰️</div>
-          <h3>Phase Errors Degrade Signal</h3>
-          <p>
-            The distorted wavefront causes beam spreading, intensity scintillation, and reduced 
-            coherence at the receiver. In satellite or drone laser links, this can increase bit error 
-            rates and drop communication throughput significantly.
-          </p>
-        </div>
-
-        <!-- Card 3: AO + AI -->
-        <div class="science-card" id="card-solution">
-          <div class="science-card-icon">🔧</div>
-          <h3>Predict and Correct</h3>
-          <p>
-            We simulate the physics, measure the wavefront using a model Shack-Hartmann sensor, 
-            then train regression models to predict the phase distortion from sensor slope measurements. 
-            This is the core of adaptive optics: sense, predict, correct.
-          </p>
+        <!-- Right: Optical Bench Laboratory Scene -->
+        <div class="hero-bench-frame" id="hero-bench-container">
+          <img src="assets/hero-bench.jpg" alt="SHYENA Optical Bench Setup" class="hero-bench-img">
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- ═══════════════════════════ OUR APPROACH ═══════════════════════════ -->
-  <section id="approach">
-    <div class="container">
-      <div class="section-title">
-        <span class="eyebrow-mono">COMPUTATIONAL PIPELINE</span>
-        <h2>Our Approach</h2>
+      <!-- Hero Footer Sub-strip -->
+      <div class="hero-footer-bar">
+        <div class="hero-footer-left">
+          <strong>NIST</strong> NIST University
+        </div>
+        <div class="hero-footer-center">
+          B.Tech Project &nbsp;|&nbsp; SHYENA Optics
+        </div>
+        <a href="#demo" class="hero-footer-right">
+          Scroll to explore
+        </a>
       </div>
-      <p class="section-subtitle">
-        An end-to-end pipeline from atmospheric turbulence to wavefront prediction. 
-        Click any step to explore the physics.
-      </p>
+    </section>
 
-      <div id="pipeline-container"></div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════ LIVE DEMO ═══════════════════════════ -->
-  <section id="demo">
-    <div class="container">
-      <div class="section-title">
-        <span class="eyebrow-mono">REAL-TIME SIMULATOR</span>
-        <h2>Live Simulation</h2>
+    <!-- ═══════════════════════════ 3. PROJECT INTRODUCTION ═══════════════════════════ -->
+    <section class="intro-section" id="intro">
+      <div class="intro-lead-card">
+        <div class="intro-lead-text">
+          <strong>The Engineering Problem</strong>
+          Atmospheric turbulence introduces stochastic refractive index fluctuations that distort coherent laser wavefronts. In free-space optical communications, this causes severe speckle, phase distortion, and beam wander that degrade signal reception. SHYENA applies machine learning and adaptive optics to estimate the perturbed wavefront from sensor slopes and command corrective mirror deformation to restore concentrated optical focus.
+        </div>
       </div>
-      <p class="section-subtitle">
-        Every parameter you change here runs real physics-based computation in your browser. 
-        Results are computed fresh each time - nothing is pre-baked.
-      </p>
 
-      <!-- Parameter Controls -->
-      <div class="demo-controls">
-        <!-- Left Column: Sliders -->
-        <div class="control-group">
-          <label>Turbulence Strength (C<sub>n</sub>²)</label>
-          <div class="control-info">Controls atmospheric distortion intensity</div>
-          <div class="slider-row">
+      <!-- Compact Process Flow -->
+      <div class="pipeline-flow">
+        <div class="pipeline-step">
+          <div class="step-num">Stage 01</div>
+          <div class="step-title">Atmospheric Disturbance</div>
+          <div class="step-desc">Kolmogorov turbulence introduces spatial refractive index eddies along the propagation path.</div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">Stage 02</div>
+          <div class="step-title">Wavefront Distortion</div>
+          <div class="step-desc">Optical path differences create severe phase aberrations across the receiving pupil.</div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">Stage 03</div>
+          <div class="step-title">Wavefront Sensing</div>
+          <div class="step-desc">A 4×4 Shack-Hartmann lenslet array measures local spatial phase gradients (32 slope features).</div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">Stage 04</div>
+          <div class="step-title">AI Estimation</div>
+          <div class="step-desc">Regularized Ridge regression solves normal equations to predict low-order Zernike modal weights.</div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">Stage 05</div>
+          <div class="step-title">Adaptive Correction</div>
+          <div class="step-desc">Deformable mirror applies conjugate phase subtraction, restoring an intact Airy disk at the detector.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ 4. LIVE LAB ═══════════════════════════ -->
+    <section class="live-lab-section" id="demo">
+      <div class="section-header">
+        <div class="section-eyebrow">INTERACTIVE RESEARCH WORKSPACE</div>
+        <h2 class="section-title">The Live Lab</h2>
+        <p class="section-desc">
+          Execute client-side numerical simulations of atmospheric turbulence and adaptive optics correction. Adjust physical parameters, evaluate machine-learning models, and inspect synchronized beam intensities and phase distributions.
+        </p>
+      </div>
+
+      <div class="workbench-layout">
+        <!-- Left: Simulation Controls Rail -->
+        <aside class="param-card">
+          <div class="param-card-header">
+            <div class="param-card-title">Simulation Parameters</div>
+            <button class="btn-reset-text" id="btn-reset-top" title="Reset all sliders to benchmark defaults">Reset</button>
+          </div>
+
+          <!-- Parameter 1: Turbulence Strength Cn2 with Presets -->
+          <div class="control-item">
+            <div class="control-header">
+              <span class="control-label">Turbulence Strength (C<sub>n</sub>²)</span>
+              <span class="control-val" id="cn2-value">1.00 × 10⁻¹³</span>
+            </div>
+            <div class="preset-group">
+              <button class="preset-btn" data-exp="-14" id="preset-weak">Weak (10⁻¹⁴)</button>
+              <button class="preset-btn active" data-exp="-13" id="preset-mod">Moderate (10⁻¹³)</button>
+              <button class="preset-btn" data-exp="-12" id="preset-strong">Strong (10⁻¹²)</button>
+            </div>
             <input type="range" id="slider-cn2" min="-14" max="-12" step="0.1" value="-13">
-            <span class="slider-value" id="cn2-value">1.00 × 10⁻¹³</span>
-          </div>
-          <div class="slider-label-row">
-            <span>Weak (10⁻¹⁴)</span>
-            <span>Strong (10⁻¹²)</span>
           </div>
 
-          <div style="margin-top: 1.5rem;">
-            <label>Number of Realizations</label>
-            <div class="control-info">Independent turbulence scenarios for training</div>
-            <div class="slider-row">
-              <input type="range" id="slider-realizations" min="10" max="200" step="5" value="50">
-              <span class="slider-value" id="realizations-value">50</span>
+          <!-- Parameter 2: Atmospheric Distance L -->
+          <div class="control-item">
+            <div class="control-header">
+              <span class="control-label">Atmospheric Distance (m)</span>
+              <span class="control-val" id="dist-value">1000 m</span>
             </div>
-            <div class="slider-label-row">
-              <span>10</span>
-              <span>200</span>
-            </div>
+            <input type="range" id="slider-dist" min="500" max="2500" step="50" value="1000">
           </div>
 
-          <div style="margin-top: 1.5rem;">
-            <label>Ridge Regularization (α)</label>
-            <div class="control-info">L2 penalty strength - prevents overfitting</div>
-            <div class="slider-row">
-              <input type="range" id="slider-alpha" min="-3" max="2" step="0.1" value="0">
-              <span class="slider-value" id="alpha-value">1.000</span>
+          <!-- Parameter 3: Beam Waist w0 -->
+          <div class="control-item">
+            <div class="control-header">
+              <span class="control-label">Beam Waist (mm)</span>
+              <span class="control-val" id="waist-value">5.0 mm</span>
             </div>
-            <div class="slider-label-row">
-              <span>0.001</span>
-              <span>100</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column: Model selector & info -->
-        <div class="control-group">
-          <label>Model Type</label>
-          <div class="control-info">Select regression algorithm</div>
-          <div class="model-selector">
-            <label class="model-option" id="opt-linear">
-              <input type="radio" name="model-type" value="linear"> Linear Regression
-            </label>
-            <label class="model-option selected" id="opt-ridge">
-              <input type="radio" name="model-type" value="ridge" checked> Ridge Regression
-            </label>
+            <input type="range" id="slider-waist" min="2.0" max="10.0" step="0.5" value="5.0">
           </div>
 
-          <div style="margin-top: 2rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-            <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7;">
-              <strong style="color: var(--primary);">Grid Size:</strong> 32 × 32 (fixed)<br>
-              <strong style="color: var(--primary);">Subapertures:</strong> 4 × 4<br>
-              <strong style="color: var(--primary);">Features:</strong> 32 (2 × 4²) slope measurements<br>
-              <strong style="color: var(--primary);">Targets:</strong> 15 Zernike coefficients<br>
-              <strong style="color: var(--primary);">Test split:</strong> 25%
+          <!-- Parameter 4: Realizations N -->
+          <div class="control-item">
+            <div class="control-header">
+              <span class="control-label">Realizations (N)</span>
+              <span class="control-val" id="realizations-value">40</span>
             </div>
-            <div style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">
-              Running at 32×32 for real-time performance.<br>
-              Full 512×512 used in offline experiments.
+            <input type="range" id="slider-realizations" min="10" max="100" step="5" value="40">
+          </div>
+
+          <!-- Parameter 5: Estimator Model Selection -->
+          <div class="control-item">
+            <div class="control-header">
+              <span class="control-label">Estimator Model</span>
+            </div>
+            <div class="segmented-control">
+              <div class="segmented-option active" id="seg-ridge">Ridge Regression</div>
+              <div class="segmented-option" id="seg-linear">Linear Regression</div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Run Button -->
-      <div class="demo-run-area">
-        <button class="btn btn-run" id="btn-run-simulation">⚡ Run Simulation</button>
-        <div class="demo-note" id="demo-timing-note"></div>
-      </div>
-
-      <!-- Progress Bar & Live Simulation Preview -->
-      <div class="progress-container" id="progress-container">
-        <div class="progress-live-preview" style="display: flex; gap: var(--space-xl); justify-content: center; margin-bottom: var(--space-lg); flex-wrap: wrap;">
-          <div style="text-align: center;">
-            <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--mute); text-transform: uppercase; margin-bottom: var(--space-xs); letter-spacing: 0.8px;">Live Phase Screen</div>
-            <canvas id="live-phase-canvas" width="128" height="128" style="border: 1px solid var(--hairline); background: var(--canvas); border-radius: var(--radius-sm);"></canvas>
+          <!-- Parameter 6: Ridge Alpha (conditional) -->
+          <div class="control-item" id="alpha-control-item">
+            <div class="control-header">
+              <span class="control-label">Ridge Penalty (α)</span>
+              <span class="control-val" id="alpha-value">10.0</span>
+            </div>
+            <input type="range" id="slider-alpha" min="-2" max="2" step="0.1" value="1">
           </div>
-          <div style="text-align: center;">
-            <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--mute); text-transform: uppercase; margin-bottom: var(--space-xs); letter-spacing: 0.8px;">Live SH Sensor Spots</div>
-            <canvas id="live-sh-canvas" width="128" height="128" style="border: 1px solid var(--hairline); background: var(--canvas); border-radius: var(--radius-sm);"></canvas>
+
+          <!-- Parameter 7: Correction Mode -->
+          <div class="control-item">
+            <div class="control-header">
+              <span class="control-label">Correction Mode</span>
+            </div>
+            <select class="control-select" id="select-correction-mode">
+              <option value="reconstruction">Reconstruction &amp; Subtraction</option>
+              <option value="phase_only">Estimated Phase Correction</option>
+              <option value="rl_conceptual">AI Control (RL - Conceptual)</option>
+            </select>
           </div>
-        </div>
-        <div class="progress-bar-track">
-          <div class="progress-bar-fill" id="progress-bar-fill"></div>
-        </div>
-        <div class="progress-text" id="progress-text">Initializing...</div>
+
+          <!-- Seed & Run ID -->
+          <div class="control-item">
+            <div class="control-header">
+              <span class="control-label">Random Seed</span>
+            </div>
+            <div class="seed-row">
+              <input type="number" id="input-seed" class="seed-input" value="31415">
+              <button class="btn-seed-random" id="btn-random-seed" title="Generate new seed">New</button>
+            </div>
+          </div>
+
+          <div class="run-id-pill">
+            <span id="display-run-id">RUN-31415-RIDGE</span>
+            <button class="btn-copy-id" id="btn-copy-run-id">Copy ID</button>
+          </div>
+
+          <!-- Master Action Buttons -->
+          <div class="action-buttons">
+            <button class="btn-run" id="btn-run-simulation">Run Simulation</button>
+            <button class="btn-export-results" id="btn-export-json">Export Results (JSON / CSV)</button>
+            <button class="btn-reset-text" id="btn-reset" style="text-align: center; margin-top: 4px;">Reset Defaults</button>
+          </div>
+
+          <!-- Simulation Progress Bar -->
+          <div class="progress-container" id="progress-container">
+            <div class="progress-track">
+              <div class="progress-bar-fill" id="progress-bar-fill"></div>
+            </div>
+            <div class="progress-text" id="progress-text">Initializing numerical engine...</div>
+          </div>
+
+          <div id="simulation-error" style="display:none; color: var(--error-accent); font-size: 0.8rem; padding: 10px; border: 1px solid var(--error-accent); border-radius: 8px; margin-top: 12px; background: var(--error-light);"></div>
+        </aside>
+
+        <!-- Right: Scientific Visualization Workspace -->
+        <main class="display-card">
+          <!-- Segmented Navigation Tabs -->
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="tab-beam">Beam Intensity</button>
+            <button class="tab-btn" data-tab="tab-phase">Wavefront Phase</button>
+            <button class="tab-btn" data-tab="tab-fft">FFT Spectrum</button>
+            <button class="tab-btn" data-tab="tab-comp">Comparison</button>
+          </div>
+
+          <!-- Tab 1: Beam Intensity (Distorted vs Corrected side-by-side + KPI Column) -->
+          <div class="tab-pane active" id="tab-beam">
+            <div class="beam-intensity-workspace">
+              <!-- Distorted Beam Plot -->
+              <div class="plot-cell-large">
+                <div class="plot-cell-header">Distorted Beam</div>
+                <div id="chart-distorted-intensity" style="width: 100%; height: 320px;"></div>
+              </div>
+
+              <!-- Corrected Beam Plot -->
+              <div class="plot-cell-large">
+                <div class="plot-cell-header">Corrected Beam</div>
+                <div id="chart-corrected-intensity" style="width: 100%; height: 320px;"></div>
+              </div>
+
+              <!-- Right Vertical KPI Column -->
+              <div class="kpi-column" id="live-kpi-bar">
+                <div class="kpi-chip-card">
+                  <div class="kpi-chip-label">Strehl Ratio</div>
+                  <div class="kpi-chip-row">
+                    <div class="kpi-chip-value" id="kpi-strehl-val">0.29</div>
+                    <div class="kpi-chip-delta" id="kpi-strehl-delta">+0.23</div>
+                  </div>
+                </div>
+
+                <div class="kpi-chip-card">
+                  <div class="kpi-chip-label">Beam Radius (px)</div>
+                  <div class="kpi-chip-row">
+                    <div class="kpi-chip-value" id="kpi-radius-val">2.4</div>
+                    <div class="kpi-chip-delta" id="kpi-radius-delta">-48%</div>
+                  </div>
+                </div>
+
+                <div class="kpi-chip-card">
+                  <div class="kpi-chip-label">RMSE (Phase)</div>
+                  <div class="kpi-chip-row">
+                    <div class="kpi-chip-value" id="kpi-rmse-val">0.68</div>
+                    <div class="kpi-chip-delta" id="kpi-rmse-delta">-79%</div>
+                  </div>
+                </div>
+
+                <div class="kpi-chip-card">
+                  <div class="kpi-chip-label">SNR (dB)</div>
+                  <div class="kpi-chip-row">
+                    <div class="kpi-chip-value" id="kpi-snr-val">6.7</div>
+                    <div class="kpi-chip-delta" id="kpi-snr-delta">+6.7</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Callout Bar with vertical bronze indicator -->
+            <div class="lab-callout-bar">
+              <div class="lab-callout-text">
+                <div class="lab-callout-indicator"></div>
+                <span>Adaptive optics successfully corrects wavefront distortions, restoring a focused beam.</span>
+              </div>
+              <svg width="48" height="16" viewBox="0 0 48 16" fill="none" style="opacity: 0.4;">
+                <path d="M0 8 Q6 2 12 8 T24 8 T36 8 T48 8" stroke="var(--optical-bronze)" stroke-width="1.5" fill="none"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Tab 2: Wavefront Phase (True vs Pred & Error Map) -->
+          <div class="tab-pane" id="tab-phase">
+            <div class="grid-2-plots" style="margin-bottom: 16px;">
+              <div class="plot-cell-large">
+                <div id="chart-phase-true" style="width: 100%; height: 280px;"></div>
+              </div>
+              <div class="plot-cell-large">
+                <div id="chart-phase-pred" style="width: 100%; height: 280px;"></div>
+              </div>
+            </div>
+            <div class="grid-2-plots">
+              <div class="plot-cell-large">
+                <div id="chart-error" style="width: 100%; height: 260px;"></div>
+              </div>
+              <div class="plot-cell-large">
+                <div id="chart-zernike" style="width: 100%; height: 260px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 3: FFT Spectrum (2D Spatial FFT & Radial PSD) -->
+          <div class="tab-pane" id="tab-fft">
+            <div class="grid-2-plots">
+              <div class="plot-cell-large">
+                <div id="chart-fft-2d" style="width: 100%; height: 320px;"></div>
+              </div>
+              <div class="plot-cell-large">
+                <div id="chart-psd" style="width: 100%; height: 320px;"></div>
+                <div id="caption-psd" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 8px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab 4: Comparison (Actual vs Predicted Scatter & Scorecard) -->
+          <div class="tab-pane" id="tab-comp">
+            <div style="display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 20px; align-items: start;">
+              <div class="plot-cell-large">
+                <div id="chart-scatter-comp" style="width: 100%; height: 340px;"></div>
+              </div>
+              <div class="plot-cell-large" style="padding: 22px;">
+                <h4 style="font-size: 0.98rem; font-weight: 700; margin-bottom: 14px;">Held-Out Evaluation Split</h4>
+                <div style="font-size: 0.86rem; color: var(--text-muted); line-height: 2;">
+                  <div><strong>Training RMSE:</strong> <span class="mono" id="comp-train-rmse">-</span></div>
+                  <div><strong>Held-Out Test RMSE:</strong> <span class="mono" id="comp-test-rmse">-</span></div>
+                  <div><strong>Generalization Gap:</strong> <span class="mono" id="comp-gap">-</span></div>
+                  <div><strong>R² Determination:</strong> <span class="mono" id="comp-r2">-</span></div>
+                  <div><strong>Independent Realizations:</strong> <span class="mono" id="comp-split">-</span></div>
+                  <div><strong>Spatial Subapertures:</strong> <span class="mono">4 × 4 (32 slope features)</span></div>
+                  <div><strong>Zernike Target Modes:</strong> <span class="mono">15 (Tip, Tilt, Defocus...)</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scientific Honesty Accordion -->
+          <div class="honesty-box" id="honesty-box">
+            <div class="honesty-header" id="honesty-header">
+              <h3>What this simulation actually shows (Scientific Honesty)</h3>
+              <span class="honesty-toggle-text">Expand Details</span>
+            </div>
+            <div class="honesty-content" id="honesty-content">
+              <div class="honesty-item"><span class="badge-verified">VERIFIED</span> Phase screens are calculated from von Kármán PSD via 2D FFT (Kolmogorov statistics, not sinusoid + noise).</div>
+              <div class="honesty-item"><span class="badge-verified">VERIFIED</span> Far-field beam intensity is physically generated by Fraunhofer diffraction of the complex pupil field.</div>
+              <div class="honesty-item"><span class="badge-verified">VERIFIED</span> Shack-Hartmann features are local phase slopes (∂φ/∂x, ∂φ/∂y), not single uncoupled pixels.</div>
+              <div class="honesty-item"><span class="badge-verified">VERIFIED</span> Training and evaluation use physically independent atmospheric realizations (eliminating intra-screen data leakage).</div>
+              <div class="honesty-item"><span class="badge-boundary">BOUNDARY</span> Linear models cannot capture nonlinear phase wrapping or deep scintillation branch points.</div>
+              <div class="honesty-item"><span class="badge-boundary">BOUNDARY</span> Reinforcement learning deformable mirror control is conceptual in the thesis; no physical piezo hardware is connected.</div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ 5. COMPUTATIONAL METHODS ═══════════════════════════ -->
+    <section class="section" id="methods" style="padding: 50px 0;">
+      <div class="section-header">
+        <div class="section-eyebrow">THEORY &amp; IMPLEMENTATION</div>
+        <h2 class="section-title">Computational Methods</h2>
+        <p class="section-desc">
+          An end-to-end mathematical narrative of how coherent optical wavefronts are modeled, sensed, estimated, and reconstructed.
+        </p>
       </div>
 
-      <!-- Error Display -->
-      <div id="simulation-error" style="display:none; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; color: #fca5a5; font-size: 0.9rem;"></div>
-
-      <!-- Metrics Scorecard -->
-      <div class="metrics-scorecard" id="metrics-scorecard">
-        <div class="metric-card" id="metric-test-rmse">
-          <div class="metric-card-value" id="val-test-rmse">-</div>
-          <div class="metric-card-label">Wavefront Error (test set)</div>
-          <div class="metric-card-sublabel">Measured on HELD-OUT data - not used in training</div>
-        </div>
-        <div class="metric-card" id="metric-r2">
-          <div class="metric-card-value" id="val-r2">-</div>
-          <div class="metric-card-label">R² Score</div>
-          <div class="metric-card-sublabel">1.0 = perfect prediction. 0 = predicting the mean.</div>
-        </div>
-        <div class="metric-card" id="metric-gap">
-          <div class="metric-card-value mono" id="val-gap">-</div>
-          <div class="metric-card-label">Generalization Gap</div>
-          <div class="metric-card-sublabel">Larger gap = overfitting. Small gap = good generalization.</div>
-        </div>
-        <div class="metric-card" id="metric-split">
-          <div class="metric-card-value mono" id="val-split">-</div>
-          <div class="metric-card-label">Independent Realizations</div>
-          <div class="metric-card-sublabel">Each realization is a physically independent turbulence scenario</div>
-        </div>
-      </div>
-
-      <!-- Result Panels (6 panels) -->
-      <div class="result-panels" id="result-panels">
-        <!-- Panel 1: Phase Screen -->
-        <div class="result-panel" id="panel-phase">
-          <div class="result-panel-title">Kolmogorov Phase Distortion</div>
-          <div class="result-panel-chart" id="chart-phase"></div>
-          <div class="result-panel-caption" id="caption-phase"></div>
-        </div>
-
-        <!-- Panel 2: Intensity -->
-        <div class="result-panel" id="panel-intensity">
-          <div class="result-panel-title">Far-Field Intensity at Receiver</div>
-          <div class="result-panel-chart" id="chart-intensity"></div>
-          <div class="result-panel-caption" id="caption-intensity"></div>
-        </div>
-
-        <!-- Panel 3: PSD Validation -->
-        <div class="result-panel" id="panel-psd">
-          <div class="result-panel-title">Power Spectral Density Validation</div>
-          <div class="result-panel-chart" id="chart-psd"></div>
-          <div class="result-panel-caption" id="caption-psd"></div>
-        </div>
-
-        <!-- Panel 4: Wavefront Comparison (wide) -->
-        <div class="result-panel wide" id="panel-wavefront">
-          <div class="result-panel-title">Actual vs Predicted Wavefront</div>
-          <div class="side-by-side">
-            <div class="result-panel-chart" id="chart-phase-true"></div>
-            <div class="result-panel-chart" id="chart-phase-pred"></div>
+      <div class="methods-grid">
+        <!-- Method 1 -->
+        <div class="method-card">
+          <div class="method-header">
+            <span class="method-tag">Step 1: Atmospheric Modeling</span>
+            <span class="method-badge implemented">Implemented</span>
           </div>
-          <div class="result-panel-caption" id="caption-wavefront">
-            Both panels use the same color scale. Visual similarity indicates 
-            good model performance. Spatial structure should match qualitatively.
+          <div class="method-title">Kolmogorov Turbulence</div>
+          <p class="method-desc">
+            Simulates optical path length fluctuations using the modified von Kármán power spectral density. Computes spatial phase screens via inverse 2D Fast Fourier Transform.
+          </p>
+          <div class="method-equation">
+            $$\Phi(f) = 0.023\, r_0^{-5/3} (f^2 + f_0^2)^{-11/6}$$
           </div>
         </div>
 
-        <!-- Panel 5: Error Map -->
-        <div class="result-panel" id="panel-error">
-          <div class="result-panel-title">Prediction Error Map (|True - Predicted|)</div>
-          <div class="result-panel-chart" id="chart-error"></div>
-          <div class="result-panel-caption" id="caption-error">
-            Bright regions = larger prediction error. This IS the genuine error 
-            from the held-out test set, not a placeholder or training-set measurement.
+        <!-- Method 2 -->
+        <div class="method-card">
+          <div class="method-header">
+            <span class="method-tag">Step 2: Optical Propagation</span>
+            <span class="method-badge implemented">Implemented</span>
+          </div>
+          <div class="method-title">Fraunhofer Diffraction</div>
+          <p class="method-desc">
+            Propagates the complex pupil field $E = A \cdot \exp(i\varphi)$ into far-field intensity. Accurately predicts speckle patterns and Strehl ratio degradation.
+          </p>
+          <div class="method-equation">
+            $$I(\mathbf{u}) = \left| \mathcal{F}\left\{ A(r) e^{i\varphi(r)} \right\} \right|^2$$
           </div>
         </div>
 
-        <!-- Panel 6: Zernike Comparison -->
-        <div class="result-panel" id="panel-zernike">
-          <div class="result-panel-title">Zernike Mode Coefficients: True vs Predicted</div>
-          <div class="result-panel-chart" id="chart-zernike"></div>
-          <div class="result-panel-caption" id="caption-zernike">
-            Lower-order modes (tip, tilt, defocus - modes 2, 3, 4) are predicted more accurately. 
-            Higher-order corrections are harder to learn with linear models - a real limitation.
+        <!-- Method 3 -->
+        <div class="method-card">
+          <div class="method-header">
+            <span class="method-tag">Step 3: Wavefront Sensing</span>
+            <span class="method-badge implemented">Implemented</span>
+          </div>
+          <div class="method-title">Shack-Hartmann Subapertures</div>
+          <p class="method-desc">
+            Divides pupil into $4 \times 4$ lenslets. Evaluates average spatial gradients ($s_x, s_y$) per subaperture, producing 32 slope features per scenario.
+          </p>
+          <div class="method-equation">
+            $$s_x = \frac{1}{A}\iint \frac{\partial \varphi}{\partial x} \, dA + \eta$$
+          </div>
+        </div>
+
+        <!-- Method 4 -->
+        <div class="method-card">
+          <div class="method-header">
+            <span class="method-tag">Step 4: AI Estimation</span>
+            <span class="method-badge implemented">Implemented</span>
+          </div>
+          <div class="method-title">Ridge Regularization</div>
+          <p class="method-desc">
+            Solves closed-form normal equations with an $L_2$ penalty to map slope features to 15 Zernike aberration modes, preventing collinear overfitting.
+          </p>
+          <div class="method-equation">
+            $$\hat{\beta} = (X^T X + \alpha I)^{-1} X^T y$$
+          </div>
+        </div>
+
+        <!-- Method 5 -->
+        <div class="method-card">
+          <div class="method-header">
+            <span class="method-tag">Step 5: Wavefront Recovery</span>
+            <span class="method-badge implemented">Implemented</span>
+          </div>
+          <div class="method-title">Zernike Modal Synthesis</div>
+          <p class="method-desc">
+            Reconstructs the continuous estimated phase screen from predicted orthogonal polynomial coefficients and calculates residual error.
+          </p>
+          <div class="method-equation">
+            $$\hat{\varphi}(r, \theta) = \sum_{j=1}^{15} \hat{a}_j Z_j(r, \theta)$$
+          </div>
+        </div>
+
+        <!-- Method 6 -->
+        <div class="method-card">
+          <div class="method-header">
+            <span class="method-tag">Step 6: Closed-Loop Control</span>
+            <span class="method-badge planned">Planned / Conceptual</span>
+          </div>
+          <div class="method-title">Reinforcement Learning (RL)</div>
+          <p class="method-desc">
+            Proposed Markov decision process: agent receives sensor slopes, commands deformable mirror actuator voltages, and optimizes Strehl ratio reward.
+          </p>
+          <div class="method-equation">
+            $$R_t = \text{Strehl}_t - \lambda \|\mathbf{u}_t\|^2$$
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- Scientific Honesty Box -->
-      <div class="honesty-box" id="honesty-box">
-        <div class="honesty-header" id="honesty-header">
-          <h3>📋 What this demo actually shows (and what it doesn't)</h3>
-          <span class="honesty-toggle">▼</span>
-        </div>
-        <div class="honesty-content" id="honesty-content">
-          <p style="margin-bottom: 1rem;">This simulation corrects several limitations present in our original report:</p>
-          
-          <div class="honesty-item"><span class="check">✓</span> Phase screens use FFT-based Kolmogorov spectrum (not sinusoid + noise)</div>
-          <div class="honesty-item"><span class="check">✓</span> Intensity is computed from the phase via Fraunhofer diffraction (physically linked)</div>
-          <div class="honesty-item"><span class="check">✓</span> Features are Shack-Hartmann slope measurements (not single-pixel intensity values)</div>
-          <div class="honesty-item"><span class="check">✓</span> Training uses <span class="mono" id="honesty-ntrain">N</span> independent turbulence realizations (not pixels from one image)</div>
-          <div class="honesty-item"><span class="check">✓</span> RMSE is measured on a held-out test set (not the training data)</div>
-          <div class="honesty-item"><span class="check">✓</span> FFT power spectral density confirms Kolmogorov statistics</div>
-          
-          <hr class="honesty-divider">
-          
-          <p style="margin-bottom: 1rem;">Honest limitations of this approach:</p>
-          
-          <div class="honesty-item"><span class="cross">✗</span> Linear and Ridge regression are inherently limited to linear mappings. The real wavefront-slope relationship has nonlinear components that require CNNs or deeper models.</div>
-          <div class="honesty-item"><span class="cross">✗</span> At 32×32 resolution, only 15 Zernike modes are fitted. A real AO system corrects 50-100+ modes.</div>
-          <div class="honesty-item"><span class="cross">✗</span> No closed-loop correction is demonstrated - this predicts the error but does not show the mirror command that would correct it.</div>
-          <div class="honesty-item"><span class="cross">✗</span> This remains a simulation. Real sensor noise, read noise, and photon statistics are approximated but not fully modeled.</div>
-        </div>
+    <!-- ═══════════════════════════ 6. SCIENTIFIC RESULTS ═══════════════════════════ -->
+    <section class="section" id="results" style="padding: 50px 0;">
+      <div class="section-header">
+        <div class="section-eyebrow">EXPERIMENTAL RECORD</div>
+        <h2 class="section-title">Benchmark Results</h2>
+        <p class="section-desc">
+          Official metrics documented in the project thesis compared against live client evaluation on held-out realizations.
+        </p>
       </div>
-    </div>
-  </section>
 
-  <!-- ═══════════════════════════ RESULTS ═══════════════════════════ -->
-  <section id="results">
-    <div class="container">
-      <div class="section-title">
-        <span class="eyebrow-mono">BENCHMARK FINDINGS</span>
-        <h2>Results</h2>
+      <!-- Official Benchmark Table -->
+      <div class="benchmark-table-card">
+        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 6px;">Evaluation Record: Linear vs. Ridge Regression</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          Reference: Team SHYENA Applied Physics Project Report (Pages 28 &amp; 31).
+        </p>
+        <table class="benchmark-table">
+          <thead>
+            <tr>
+              <th>Model Specification</th>
+              <th>Regularization (α)</th>
+              <th>Report RMSE (rad)</th>
+              <th>Live Client RMSE</th>
+              <th>Generalization Gap</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Linear Regression (OLS)</td>
+              <td class="mono">α = 0</td>
+              <td class="mono">0.3285 rad</td>
+              <td class="mono" id="table-live-linear">~0.334 rad</td>
+              <td class="mono">+0.048 rad</td>
+              <td>Baseline</td>
+            </tr>
+            <tr>
+              <td>Ridge Regression</td>
+              <td class="mono highlight-ridge">α = 10.0</td>
+              <td class="mono highlight-ridge">0.2910 rad</td>
+              <td class="mono highlight-ridge" id="table-live-ridge">~0.292 rad</td>
+              <td class="mono">+0.015 rad</td>
+              <td class="highlight-ridge">11.4% Error Reduction</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <p class="section-subtitle">
-        Honest findings from a simulation-based study. We report what the model actually achieves, 
-        and where it falls short. All numbers were computed on held-out test data.
-      </p>
 
-      <div class="results-cards">
-        <div class="result-summary-card">
-          <h3>Ridge Beats Linear - With a Caveat</h3>
+      <!-- Static Convergence Chart -->
+      <div class="plot-cell-large" style="padding: 24px; margin-top: 24px;">
+        <h3 style="font-size: 1.05rem; font-weight: 600; margin-bottom: 4px;">Test RMSE vs Number of Realizations</h3>
+        <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px;">Evaluates sample efficiency and model capacity plateau.</div>
+        <div id="chart-convergence" style="width: 100%; min-height: 340px;"></div>
+      </div>
+
+      <!-- 3 Key Findings Cards -->
+      <div class="results-insights-grid">
+        <div class="insight-card">
+          <h4>Regularization Prevents Overfitting</h4>
           <p>
-            Ridge Regression (α=10) achieved 12-15% lower test RMSE than Linear Regression 
-            across 50-realization experiments. However, the margin shrinks at higher turbulence 
-            (strong C<sub>n</sub>² = 10⁻¹²), where neither linear model captures the nonlinear distortion well. 
-            The performance gain from Ridge comes from reduced overfitting, not from modelling 
-            the underlying physics better.
+            Adjacent Shack-Hartmann subapertures measure spatially correlated wavefront gradients. Ridge regression's $L_2$ penalty dampens collinear weight blowups, achieving ~11.4% lower test RMSE.
           </p>
         </div>
-
-        <div class="result-summary-card">
-          <h3>Low-Order Modes Are Well-Corrected</h3>
+        <div class="insight-card">
+          <h4>Low-Order Modes Dominate</h4>
           <p>
-            Tip, tilt, and defocus (Zernike modes 2, 3, 4) are consistently predicted with 
-            R² > 0.7, because these are the dominant contributions to wavefront error and 
-            have the strongest signal in slope measurements. Higher-order modes (coma, trefoil, 
-            spherical aberration) are poorly predicted by linear regression alone.
+            Tip, tilt, and defocus (Zernike modes 2, 3, 4) contain over 70% of turbulent phase energy. Linear models reconstruct these effectively, while higher-order spherical modes require non-linear networks.
           </p>
         </div>
-
-        <div class="result-summary-card">
-          <h3>More Data Helps, But Hits a Wall</h3>
+        <div class="insight-card">
+          <h4>Sample Capacity Plateau</h4>
           <p>
-            Increasing realizations from 10 to 100 reduces test RMSE consistently. 
-            Beyond 100 samples, improvement plateaus - indicating the linear model 
-            has reached its capacity limit. This motivates future work with 
-            convolutional neural networks or physics-informed learning.
+            Increasing realizations beyond 100 samples yields diminishing returns. Linear models hit a mathematical capacity ceiling, highlighting the future role of physics-informed neural networks.
           </p>
         </div>
       </div>
+    </section>
 
-      <!-- Static convergence chart -->
-      <div class="static-chart-container">
-        <h3>Test RMSE vs Number of Realizations</h3>
-        <div id="chart-convergence" style="width:100%; min-height:350px;"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════ TEAM ═══════════════════════════ -->
-  <section id="team">
-    <div class="container">
-      <div class="section-title">
-        <span class="eyebrow-mono">PROJECT CONTRIBUTORS</span>
-        <h2>Team SHYENA</h2>
-      </div>
-      <p class="section-subtitle" style="color: var(--accent-sunset-soft); font-family: var(--font-mono); letter-spacing: 2px; text-transform: uppercase;">
-        From the Vedas to Velocity
-      </p>
-
-      <!-- Guide Card -->
-      <div class="guide-card">
-        <img src="assets/ratikanta.png" class="guide-avatar" alt="Dr. Ratikanta Nayak">
-        <h3>Dr. Ratikanta Nayak</h3>
-        <div class="guide-role">Project Supervisor</div>
-        <div class="guide-detail">
-          Assistant Professor, Department of Physics<br>
-          NIST University, Berhampur, Odisha
-        </div>
+    <!-- ═══════════════════════════ 7. LIMITATIONS ═══════════════════════════ -->
+    <section class="section" id="limitations" style="padding: 50px 0;">
+      <div class="section-header">
+        <div class="section-eyebrow">SCIENTIFIC INTEGRITY</div>
+        <h2 class="section-title">Research Limitations</h2>
+        <p class="section-desc">
+          Honest reflection on study boundaries as cataloged in Section 9 of the project report (Pages 32–33).
+        </p>
       </div>
 
-      <!-- Team Grid -->
-      <div class="team-grid">
-        <div class="team-card">
-          <img src="assets/shreya.png" class="team-avatar" alt="Palantala Shreya">
-          <h4>Palantala Shreya</h4>
-          <div class="team-roll">202457159</div>
-          <div class="team-dept">CSE (Data Science)</div>
-        </div>
-        <div class="team-card">
-          <div class="team-avatar">GM</div>
-          <h4>G. Manisha Patra</h4>
-          <div class="team-roll">202457164</div>
-          <div class="team-dept">CST</div>
-        </div>
-        <div class="team-card">
-          <img src="assets/swayam.png" class="team-avatar" alt="Swayam Satwik Patnaik">
-          <h4>Swayam Satwik Patnaik</h4>
-          <div class="team-roll">202456168</div>
-          <div class="team-dept">CSE (Data Science)</div>
-        </div>
-        <div class="team-card">
-          <img src="assets/parag.png" class="team-avatar" alt="Parag Mohapatra">
-          <h4>Parag Mohapatra</h4>
-          <div class="team-roll">202456177</div>
-          <div class="team-dept">CSE (Data Science)</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-inner">
-        <div class="footer-logo">
+      <div class="limitations-grid">
+        <div class="limitation-item">
+          <div class="limitation-num">1</div>
           <div>
-            <img src="assets/logo.png" alt="SHYENA">
-            <div class="footer-logo-text">SHYENA</div>
-            <div class="footer-tagline">From the Vedas to Velocity</div>
+            <div class="limitation-title">Simulation Model Constraints</div>
+            <div class="limitation-text">Kolmogorov and von Kármán spectral models assume isotropic, stationary turbulence and do not fully capture intermittent atmospheric gusts or localized micro-weather.</div>
           </div>
         </div>
 
-        <div class="footer-center">
-          B.Tech Project Report - Applied Physics<br>
-          NIST University, Berhampur, Odisha-761008, India<br>
-          Under guidance of Dr. Ratikanta Nayak
+        <div class="limitation-item">
+          <div class="limitation-num">2</div>
+          <div>
+            <div class="limitation-title">Absence of Real-Time Sensor Telemetry</div>
+            <div class="limitation-text">The study evaluated synthetic phase screens without hardware sensor feedback, omitting CCD dark current, readout noise, photon shot noise, and physical lenslet misalignment.</div>
+          </div>
         </div>
 
-        <div class="footer-right">
-          <a href="https://github.com/patnaikswayam131/AI-powered-adaptive-optics-for-free-space-laser-communication" target="_blank" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1.2rem;">
-            GitHub Repository
-          </a>
-          <div class="footer-quote">"Built with physics, not fiction."</div>
+        <div class="limitation-item">
+          <div class="limitation-num">3</div>
+          <div>
+            <div class="limitation-title">Reinforcement Learning Scaling &amp; Latency</div>
+            <div class="limitation-text">RL agents require thousands of episodes to converge. In physical deployment, microsecond control loop deadlines risk policy instability and latency-induced phase lag.</div>
+          </div>
         </div>
+
+        <div class="limitation-item">
+          <div class="limitation-num">4</div>
+          <div>
+            <div class="limitation-title">Linear Regression Capacity Limits</div>
+            <div class="limitation-text">Linear and Ridge estimators cannot learn complex phase wrapping or nonlinear diffraction dynamics present during deep optical scintillation.</div>
+          </div>
+        </div>
+
+        <div class="limitation-item">
+          <div class="limitation-num">5</div>
+          <div>
+            <div class="limitation-title">Hybrid Model Coordination</div>
+            <div class="limitation-text">Combining regression-based feedforward estimation with RL feedback controllers creates coupling challenges that can produce antagonistic actuator commands if uncalibrated.</div>
+          </div>
+        </div>
+
+        <div class="limitation-item">
+          <div class="limitation-num">6</div>
+          <div>
+            <div class="limitation-title">Incomplete Communication-Level Evaluation</div>
+            <div class="limitation-text">Evaluation focuses on optical phase and Strehl metrics; full communications parameters such as bit-error rate (BER), eye diagrams, and constellation SNR remain unmeasured.</div>
+          </div>
+        </div>
+
+        <div class="limitation-item">
+          <div class="limitation-num">7</div>
+          <div>
+            <div class="limitation-title">SWaP Constraints for Aerospace Deployment</div>
+            <div class="limitation-text">Size, Weight, and Power (SWaP) budgets for satellite and drone payloads require dedicated low-power FPGA or edge-GPU acceleration not modeled here.</div>
+          </div>
+        </div>
+
+        <div class="limitation-item">
+          <div class="limitation-num">8</div>
+          <div>
+            <div class="limitation-title">Fault Tolerance &amp; Failsafe Layers</div>
+            <div class="limitation-text">Current software lacks anomaly detection and watchdog mechanisms to gracefully recover when extreme turbulence blinds the sensor or saturates mirror stroke.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ 8. TEAM SECTION ═══════════════════════════ -->
+    <section class="team-section" id="team">
+      <div class="section-header" style="text-align: center;">
+        <div class="section-eyebrow">PROJECT CONTRIBUTORS</div>
+        <h2 class="section-title">Team SHYENA</h2>
+        <p class="section-desc" style="margin: 0 auto; color: var(--optical-bronze); font-family: var(--font-mono); letter-spacing: 0.1em; font-size: 0.85rem;">
+          FROM THE VEDAS TO VELOCITY
+        </p>
+      </div>
+
+      <!-- Supervisor Card -->
+      <div class="guide-box">
+        <img src="assets/ratikanta.png" alt="Dr. Ratikanta Nayak" class="guide-avatar">
+        <div>
+          <div class="guide-name">Dr. Ratikanta Nayak</div>
+          <div class="guide-role">Project Supervisor &amp; Guide</div>
+          <div class="guide-inst">
+            Assistant Professor, Department of Physics<br>
+            NIST University, Berhampur, Odisha-761008, India
+          </div>
+        </div>
+      </div>
+
+      <!-- Students Grid -->
+      <div class="students-grid">
+        <div class="student-card">
+          <img src="assets/shreya.png" alt="Palantala Shreya" class="student-avatar">
+          <div class="student-name">Palantala Shreya</div>
+          <div class="student-roll">Roll: 202457159</div>
+          <div class="student-dept">CSE (Data Science)</div>
+        </div>
+
+        <div class="student-card">
+          <div class="student-avatar-fallback">GM</div>
+          <div class="student-name">G. Manisha Patra</div>
+          <div class="student-roll">Roll: 202457164</div>
+          <div class="student-dept">Computer Science &amp; Tech</div>
+        </div>
+
+        <div class="student-card">
+          <img src="assets/swayam.png" alt="Swayam Satwik Patnaik" class="student-avatar">
+          <div class="student-name">Swayam Satwik Patnaik</div>
+          <div class="student-roll">Roll: 202456168</div>
+          <div class="student-dept">CSE (Data Science)</div>
+        </div>
+
+        <div class="student-card">
+          <img src="assets/parag.png" alt="Parag Mohapatra" class="student-avatar">
+          <div class="student-name">Parag Mohapatra</div>
+          <div class="student-roll">Roll: 202456177</div>
+          <div class="student-dept">CSE (Data Science)</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══════════════════════════ 9. FOOTER ═══════════════════════════ -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <img src="assets/logo.png" alt="SHYENA" style="width: 28px; height: 28px; object-fit: contain;">
+        <div>
+          <strong style="color: var(--text-main);">SHYENA</strong> — Applied Optics Research Project
+          <div style="font-size: 0.76rem; color: var(--text-muted);">NIST University, Institute Park, Berhampur, Odisha, India</div>
+        </div>
+      </div>
+
+      <div>
+        <a href="https://github.com/patnaikswayam131/AI-powered-adaptive-optics-for-free-space-laser-communication" target="_blank" class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 14px;">
+          GitHub Repository
+        </a>
       </div>
     </div>
   </footer>
 
   <!-- ═══════════════════════════ SCRIPTS ═══════════════════════════ -->
-  <!-- CDN Libraries -->
+  <!-- KaTeX & Plotly CDNs -->
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-2.35.0.min.js" charset="utf-8"></script>
+
+  <!-- FFT.js module shim -->
   <script>var module = { exports: {} };</script>
   <script src="https://cdn.jsdelivr.net/npm/fft.js@4.0.4/lib/fft.js"></script>
   <script>var FFT = module.exports; module = undefined;</script>
 
-  <!-- Physics Engine (order matters: fft-utils first, then kolmogorov before others) -->
-  <script src="js/physics/fft-utils.js"></script>
-  <script src="js/physics/kolmogorov.js"></script>
-  <script src="js/physics/propagation.js"></script>
-  <script src="js/physics/shack-hartmann.js"></script>
-  <script src="js/physics/zernike.js"></script>
+  <!-- Ambient Laboratory Dust Particles -->
+  <script src="js/particles.js?v=20261018_editorial_v1"></script>
 
-  <!-- ML Engine -->
-  <script src="js/ml/matrix.js"></script>
-  <script src="js/ml/dataset.js"></script>
-  <script src="js/ml/regression.js"></script>
-  <script src="js/ml/evaluation.js"></script>
+  <!-- Physics Engine Modules -->
+  <script src="js/physics/fft-utils.js?v=20261018_editorial_v1"></script>
+  <script src="js/physics/kolmogorov.js?v=20261018_editorial_v1"></script>
+  <script src="js/physics/propagation.js?v=20261018_editorial_v1"></script>
+  <script src="js/physics/shack-hartmann.js?v=20261018_editorial_v1"></script>
+  <script src="js/physics/zernike.js?v=20261018_editorial_v1"></script>
 
-  <!-- Visualization -->
-  <script src="js/visualization/heatmaps.js"></script>
-  <script src="js/visualization/charts.js"></script>
-  <script src="js/visualization/metrics.js"></script>
-  <script src="js/visualization/static-results.js"></script>
+  <!-- ML Regression Pipeline -->
+  <script src="js/ml/matrix.js?v=20261018_editorial_v1"></script>
+  <script src="js/ml/dataset.js?v=20261018_editorial_v1"></script>
+  <script src="js/ml/regression.js?v=20261018_editorial_v1"></script>
+  <script src="js/ml/evaluation.js?v=20261018_editorial_v1"></script>
 
-  <!-- Simulation Orchestrator -->
-  <script src="js/simulation.js"></script>
+  <!-- Visualization Modules -->
+  <script src="js/visualization/heatmaps.js?v=20261018_v9"></script>
+  <script src="js/visualization/charts.js?v=20261018_v9"></script>
+  <script src="js/visualization/metrics.js?v=20261018_v9"></script>
+  <script src="js/visualization/static-results.js?v=20261018_v9"></script>
 
-  <!-- Animation & Interaction -->
-  <script src="js/particles.js"></script>
-  <script src="js/pipeline.js"></script>
-  <script src="js/main.js"></script>
+  <!-- Orchestrator & UI Controller -->
+  <script src="js/simulation.js?v=20261018_v9"></script>
+  <script src="js/main.js?v=20261018_v9"></script>
 </body>
 </html>

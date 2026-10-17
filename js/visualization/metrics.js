@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
 // Metrics Display Module
-// Count-up animation and color-coded scorecard cards
+// Renders live scientific KPIs matching adaptive-optics-website-mockup.png
 // ═══════════════════════════════════════════════════════════════
 
 /**
@@ -8,15 +8,12 @@
  */
 function animateCountUp(element, targetValue, duration, formatter) {
   if (!element) return;
-
   const startTime = performance.now();
   const startValue = 0;
 
   function update(currentTime) {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
-
-    // Ease out cubic
     const eased = 1 - Math.pow(1 - progress, 3);
     const currentValue = startValue + (targetValue - startValue) * eased;
 
@@ -31,125 +28,80 @@ function animateCountUp(element, targetValue, duration, formatter) {
 }
 
 /**
- * Get color class based on metric value and thresholds
+ * Display the 4 Live Lab KPIs matching adaptive-optics-website-mockup.png
  */
-function getMetricColor(value, goodThreshold, badThreshold, lowerIsBetter) {
-  if (lowerIsBetter) {
-    if (value < goodThreshold) return 'good';
-    if (value < badThreshold) return 'moderate';
-    return 'poor';
-  } else {
-    if (value > goodThreshold) return 'good';
-    if (value > badThreshold) return 'moderate';
-    return 'poor';
+function displayLiveLabMetrics(metrics) {
+  const bar = document.getElementById('live-kpi-bar');
+  if (bar) bar.classList.add('visible');
+
+  // 1. Strehl Ratio
+  const elStrehl = document.getElementById('kpi-strehl-val');
+  const elStrehlDelta = document.getElementById('kpi-strehl-delta');
+  if (elStrehl) {
+    animateCountUp(elStrehl, metrics.strehl_corr, 600, v => v.toFixed(2));
   }
+  if (elStrehlDelta) {
+    const sign = metrics.delta_strehl >= 0 ? '+' : '';
+    elStrehlDelta.textContent = `${sign}${metrics.delta_strehl.toFixed(2)}`;
+    elStrehlDelta.className = metrics.delta_strehl >= 0 ? 'kpi-chip-delta' : 'kpi-chip-delta negative';
+  }
+
+  // 2. Beam Radius (px)
+  const elRadius = document.getElementById('kpi-radius-val');
+  const elRadiusDelta = document.getElementById('kpi-radius-delta');
+  if (elRadius) {
+    animateCountUp(elRadius, metrics.radius_corr, 600, v => v.toFixed(1));
+  }
+  if (elRadiusDelta) {
+    const sign = metrics.delta_radius_pct > 0 ? '+' : '';
+    elRadiusDelta.textContent = `${sign}${metrics.delta_radius_pct.toFixed(0)}%`;
+    elRadiusDelta.className = metrics.delta_radius_pct <= 0 ? 'kpi-chip-delta' : 'kpi-chip-delta negative';
+  }
+
+  // 3. RMSE (Phase)
+  const elRmse = document.getElementById('kpi-rmse-val');
+  const elRmseDelta = document.getElementById('kpi-rmse-delta');
+  if (elRmse) {
+    animateCountUp(elRmse, metrics.test_rmse, 600, v => v.toFixed(2));
+  }
+  if (elRmseDelta) {
+    const sign = metrics.delta_rmse_pct > 0 ? '+' : '';
+    elRmseDelta.textContent = `${sign}${metrics.delta_rmse_pct.toFixed(0)}%`;
+    elRmseDelta.className = metrics.delta_rmse_pct <= 0 ? 'kpi-chip-delta' : 'kpi-chip-delta negative';
+  }
+
+  // 4. SNR (dB)
+  const elSnr = document.getElementById('kpi-snr-val');
+  const elSnrDelta = document.getElementById('kpi-snr-delta');
+  if (elSnr) {
+    animateCountUp(elSnr, metrics.snr_db, 600, v => v.toFixed(1));
+  }
+  if (elSnrDelta) {
+    const sign = metrics.snr_db >= 0 ? '+' : '';
+    elSnrDelta.textContent = `${sign}${metrics.snr_db.toFixed(1)}`;
+    elSnrDelta.className = metrics.snr_db >= 0 ? 'kpi-chip-delta' : 'kpi-chip-delta negative';
+  }
+
+  // Comparison Tab Detailed Scorecard
+  const elTrainRmse = document.getElementById('comp-train-rmse');
+  if (elTrainRmse) elTrainRmse.textContent = metrics.train_rmse.toFixed(4) + ' rad';
+
+  const elTestRmse = document.getElementById('comp-test-rmse');
+  if (elTestRmse) elTestRmse.textContent = metrics.test_rmse.toFixed(4) + ' rad';
+
+  const elR2 = document.getElementById('comp-r2');
+  if (elR2) elR2.textContent = metrics.test_r2.toFixed(3);
+
+  const elGap = document.getElementById('comp-gap');
+  if (elGap) elGap.textContent = metrics.generalization_gap.toFixed(4) + ' rad';
+
+  const elSplit = document.getElementById('comp-split');
+  if (elSplit) elSplit.textContent = `${metrics.n_train} train / ${metrics.n_test} test`;
+
+  // Update Run ID badge
+  const runIdBadge = document.getElementById('display-run-id');
+  if (runIdBadge) runIdBadge.textContent = metrics.run_id;
 }
 
-/**
- * Display all metrics with animations
- */
-function displayMetrics(metrics) {
-  const scorecard = document.getElementById('metrics-scorecard');
-  scorecard.classList.add('visible');
-
-  const cards = scorecard.querySelectorAll('.metric-card');
-
-  // Staggered reveal
-  cards.forEach((card, i) => {
-    setTimeout(() => {
-      card.classList.add('visible');
-    }, i * 150);
-  });
-
-  // Card 1: Test RMSE
-  setTimeout(() => {
-    const el = document.getElementById('val-test-rmse');
-    const colorClass = getMetricColor(metrics.test_rmse, 0.3, 0.5, true);
-    animateCountUp(el, metrics.test_rmse, 800, v => v.toFixed(4) + ' rad');
-    setTimeout(() => el.className = 'metric-card-value mono ' + colorClass, 850);
-  }, 200);
-
-  // Card 2: R² Score
-  setTimeout(() => {
-    const el = document.getElementById('val-r2');
-    const colorClass = getMetricColor(metrics.test_r2, 0.7, 0.4, false);
-    animateCountUp(el, metrics.test_r2, 800, v => v.toFixed(3));
-    setTimeout(() => el.className = 'metric-card-value mono ' + colorClass, 850);
-  }, 350);
-
-  // Card 3: Generalization Gap
-  setTimeout(() => {
-    const el = document.getElementById('val-gap');
-    el.textContent = `Train: ${metrics.train_rmse.toFixed(4)} | Test: ${metrics.test_rmse.toFixed(4)}`;
-    const gap = metrics.generalization_gap;
-    const gapColor = gap < 0.05 ? 'good' : gap < 0.15 ? 'moderate' : 'poor';
-    el.className = 'metric-card-value mono ' + gapColor;
-    el.style.fontSize = '1rem';
-  }, 500);
-
-  // Card 4: Data Split
-  setTimeout(() => {
-    const el = document.getElementById('val-split');
-    el.textContent = `${metrics.n_train} train / ${metrics.n_test} test`;
-    el.style.fontSize = '1.2rem';
-    el.className = 'metric-card-value mono';
-  }, 650);
-}
-
-/**
- * Display all 6 result panels with staggered fade-in
- */
-function displayResultPanels(visualizations, metrics, gridSize) {
-  const panels = document.getElementById('result-panels');
-  panels.classList.add('visible');
-
-  const panelEls = panels.querySelectorAll('.result-panel');
-
-  // Render each panel with stagger
-  panelEls.forEach((panel, i) => {
-    setTimeout(() => {
-      panel.classList.add('visible');
-    }, i * 100);
-  });
-
-  // Panel 1: Phase Screen
-  setTimeout(() => {
-    renderPhaseScreen('chart-phase', visualizations.phase_screen, gridSize,
-      visualizations.rmsPhase, visualizations.r0);
-  }, 100);
-
-  // Panel 2: Intensity
-  setTimeout(() => {
-    renderIntensityPattern('chart-intensity', visualizations.intensity_pattern, gridSize,
-      visualizations.strehl);
-  }, 200);
-
-  // Panel 3: PSD
-  setTimeout(() => {
-    renderPSDChart('chart-psd', visualizations.psd);
-  }, 300);
-
-  // Panel 4: Wavefront Comparison
-  setTimeout(() => {
-    renderWavefrontComparison('chart-phase-true', 'chart-phase-pred',
-      visualizations.phase_true, visualizations.phase_pred, gridSize);
-  }, 400);
-
-  // Panel 5: Error Map
-  setTimeout(() => {
-    renderErrorMap('chart-error', visualizations.error_map, gridSize);
-  }, 500);
-
-  // Panel 6: Zernike
-  setTimeout(() => {
-    renderZernikeChart('chart-zernike', visualizations.zernike_true, visualizations.zernike_pred);
-  }, 600);
-
-  // Show honesty box
-  const honestyBox = document.getElementById('honesty-box');
-  honestyBox.classList.add('visible');
-
-  // Update honesty training count
-  const ntrainEl = document.getElementById('honesty-ntrain');
-  if (ntrainEl) ntrainEl.textContent = metrics.n_train;
-}
+window.displayLiveLabMetrics = displayLiveLabMetrics;
+window.animateCountUp = animateCountUp;
